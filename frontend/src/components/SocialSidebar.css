@@ -1,0 +1,117 @@
+.social-sidebar {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+}
+
+.social-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px 12px;
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  text-decoration: none;
+}
+
+.social-icon:hover {
+  transform: scale(1.2) translateX(3px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.social-icon.whatsapp:hover {
+  color: #25D366;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.3);
+}
+
+.social-icon.telegram:hover {
+  color: #0088cc;
+  box-shadow: 0 0 20px rgba(0, 136, 204, 0.3);
+}
+
+.social-icon.facebook:hover {
+  color: #1877f2;
+  box-shadow: 0 0 20px rgba(24, 119, 242, 0.3);
+}
+
+.social-icon.github:hover {
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.social-icon.linkedin:hover {
+  color: #0a66c2;
+  box-shadow: 0 0 20px rgba(10, 102, 194, 0.3);
+}
+
+.social-icon.email:hover {
+  color: #ea4335;
+  box-shadow: 0 0 20px rgba(234, 67, 53, 0.3);
+}
+
+/* Light Mode */
+body.light-mode .social-sidebar-inner {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .social-icon {
+  color: #1a1a2e;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .social-icon:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .social-sidebar {
+    left: 10px;
+  }
+  
+  .social-sidebar-inner {
+    padding: 10px 8px;
+    gap: 8px;
+  }
+  
+  .social-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-sidebar {
+    left: 5px;
+  }
+  
+  .social-sidebar-inner {
+    padding: 8px 6px;
+    gap: 6px;
+  }
+  
+  .social-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+}

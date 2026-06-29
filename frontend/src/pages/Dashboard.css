@@ -1,0 +1,831 @@
+.dashboard-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.login-box {
+  max-width: 400px;
+  width: 100%;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.login-box h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-box input {
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+}
+
+.login-box input:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+.login-error {
+  color: #ff4444;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* ====== Dashboard Main ====== */
+.dashboard {
+  min-height: 100vh;
+  background: transparent;
+  padding: 100px 0 50px;
+}
+
+.dashboard-welcome {
+  text-align: center;
+  color: #b0b0b0;
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+}
+
+/* ====== Sections ====== */
+.dashboard-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-header h3 {
+  font-size: 1.3rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.section-header .btn-primary {
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  border-radius: 8px;
+}
+
+/* ====== Cards Grid ====== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.skills-grid-dash {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+}
+
+.dashboard-card h4 {
+  color: #ffffff;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.dashboard-card p {
+  color: #b0b0b0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: 4px;
+}
+
+.dashboard-card small {
+  color: #6a6a6a;
+  font-size: 0.8rem;
+}
+
+/* ====== Card Actions ====== */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.card-actions button {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-actions button:hover {
+  border-color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+}
+
+/* ====== Delete Buttons - Red ====== */
+.card-actions button.delete-btn,
+.delete-comment-btn,
+.reject-btn,
+.clear-comments-btn {
+  color: #ff4444;
+  border-color: rgba(255, 68, 68, 0.3);
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.card-actions button.delete-btn:hover,
+.delete-comment-btn:hover,
+.reject-btn:hover,
+.clear-comments-btn:hover {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: #ff4444;
+}
+
+/* ====== Edit Form ====== */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-form input,
+.edit-form textarea {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+.edit-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-actions button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* ====== Profile Info Form ====== */
+.profile-info-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.profile-info-form .full-width {
+  grid-column: 1 / -1;
+}
+
+.profile-info-form input {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+}
+
+.profile-info-form input:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+.profile-info-form .btn-primary {
+  grid-column: 1 / -1;
+  justify-content: center;
+  padding: 10px;
+  font-size: 0.9rem;
+}
+
+/* ====== Profile Image ====== */
+.profile-image-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.profile-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00d4ff;
+}
+
+.profile-image-upload input[type="file"] {
+  display: none;
+}
+
+.profile-image-upload label {
+  padding: 8px 25px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* ====== Icon Select & Color Picker ====== */
+.icon-select {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.icon-select option {
+  background: #1a1a2e;
+  color: #ffffff;
+}
+
+.icon-select optgroup {
+  background: #1a1a2e;
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+.color-picker {
+  width: 100%;
+  height: 36px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.icon-manual-input {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+}
+
+.icon-manual-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.75rem;
+}
+
+.icon-manual-input:focus {
+  outline: none;
+  border-color: #00d4ff;
+}
+
+/* ====== Reviews ====== */
+.review-card-dash {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.review-card-dash.approved {
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+.review-card-dash.pending {
+  border-color: rgba(255, 170, 0, 0.3);
+}
+
+/* 👇 اسم المستخدم في Reviews - نفس لون الموقع */
+.review-card-dash h4 {
+  color: #00d4ff;
+}
+
+.review-rating-dash {
+  display: flex;
+  gap: 3px;
+  margin: 5px 0;
+}
+
+.review-rating-dash .filled {
+  color: #ffd700;
+}
+
+.review-rating-dash svg {
+  font-size: 0.8rem;
+  color: #3a3a3a;
+}
+
+.review-comment-dash {
+  color: #b0b0b0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 5px 0;
+}
+
+.review-date-dash {
+  color: #6a6a6a;
+  font-size: 0.75rem;
+}
+
+.review-status {
+  margin: 8px 0;
+}
+
+.status-approved {
+  background: linear-gradient(135deg, #00d4ff, #7b2ffc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.status-pending {
+  color: #ffaa00;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.approve-btn {
+  padding: 5px 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid #00d4ff;
+  border-radius: 6px;
+  color: #00d4ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.approve-btn:hover {
+  background: rgba(0, 212, 255, 0.2);
+  transform: scale(1.02);
+}
+
+/* 👇 زرار Delete في Reviews - أحمر */
+.reject-btn {
+  padding: 5px 12px;
+  background: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ff4444;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+}
+
+.reject-btn:hover {
+  background: rgba(255, 68, 68, 0.15);
+  transform: scale(1.02);
+}
+
+/* ====== Manage Comments ====== */
+.comment-manage-card {
+  padding: 15px;
+}
+
+.comment-manage-card h4 {
+  color: #00d4ff;
+  margin-bottom: 4px;
+  font-size: 0.95rem;
+}
+
+.comment-count {
+  font-size: 0.8rem;
+  color: #6a6a6a;
+  margin-bottom: 8px;
+}
+
+.comment-list-manage {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.comment-list-manage::-webkit-scrollbar {
+  width: 3px;
+}
+
+.comment-list-manage::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comment-list-manage::-webkit-scrollbar-thumb {
+  background: #00d4ff;
+  border-radius: 10px;
+}
+
+.comment-item-manage {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comment-item-manage:last-child {
+  border-bottom: none;
+}
+
+.comment-info {
+  flex: 1;
+}
+
+/* 👇 اسم المستخدم في التعليقات - نفس لون الموقع */
+.comment-info strong {
+  color: #00d4ff;
+  font-size: 0.8rem;
+}
+
+.comment-info p {
+  font-size: 0.85rem;
+  color: #b0b0b0;
+  margin: 2px 0;
+}
+
+.comment-info small {
+  font-size: 0.7rem;
+  color: #6a6a6a;
+}
+
+/* 👇 زرار Delete في التعليقات - أحمر */
+.delete-comment-btn {
+  background: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ff4444;
+  cursor: pointer;
+  padding: 4px 10px;
+  transition: all 0.3s ease;
+  font-size: 0.75rem;
+}
+
+.delete-comment-btn:hover {
+  background: rgba(255, 68, 68, 0.15);
+  transform: scale(1.05);
+}
+
+/* 👇 زرار Clear All Comments - أحمر */
+.clear-comments-btn {
+  width: 100%;
+  padding: 6px;
+  background: rgba(255, 68, 68, 0.05);
+  border: 1px solid rgba(255, 68, 68, 0.2);
+  border-radius: 6px;
+  color: #ff4444;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.clear-comments-btn:hover {
+  background: rgba(255, 68, 68, 0.15);
+}
+
+/* ====== Light Mode ====== */
+body.light-mode .dashboard-login .login-box {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .dashboard-login .login-box input {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .dashboard-login .login-box input:focus {
+  border-color: #0066ff;
+}
+
+body.light-mode .dashboard-card {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .dashboard-card h4 {
+  color: #1a1a2e;
+}
+
+body.light-mode .dashboard-card p {
+  color: #4a4a4a;
+}
+
+body.light-mode .dashboard-card small {
+  color: #888888;
+}
+
+body.light-mode .section-header h3 {
+  color: #1a1a2e;
+}
+
+body.light-mode .card-actions button {
+  color: #1a1a2e;
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .card-actions button:hover {
+  border-color: #0066ff;
+  background: rgba(0, 102, 255, 0.08);
+}
+
+/* Light Mode - Delete buttons red */
+body.light-mode .card-actions button.delete-btn,
+body.light-mode .delete-comment-btn,
+body.light-mode .reject-btn,
+body.light-mode .clear-comments-btn {
+  color: #cc3333;
+  border-color: rgba(204, 51, 51, 0.3);
+  background: rgba(204, 51, 51, 0.05);
+}
+
+body.light-mode .card-actions button.delete-btn:hover,
+body.light-mode .delete-comment-btn:hover,
+body.light-mode .reject-btn:hover,
+body.light-mode .clear-comments-btn:hover {
+  background: rgba(204, 51, 51, 0.15);
+  border-color: #cc3333;
+}
+
+/* Light Mode - Review names */
+body.light-mode .review-card-dash h4 {
+  color: #0066ff;
+}
+
+/* Light Mode - Comment names */
+body.light-mode .comment-info strong {
+  color: #0066ff;
+}
+
+body.light-mode .edit-form input,
+body.light-mode .edit-form textarea {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .edit-form input:focus,
+body.light-mode .edit-form textarea:focus {
+  border-color: #0066ff;
+}
+
+body.light-mode .icon-select {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .icon-select option {
+  background: #ffffff;
+  color: #1a1a2e;
+}
+
+body.light-mode .icon-select optgroup {
+  background: #ffffff;
+  color: #0066ff;
+}
+
+body.light-mode .color-picker {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .icon-manual-input {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .icon-manual-input::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode .icon-manual-input:focus {
+  border-color: #0066ff;
+}
+
+body.light-mode .review-card-dash {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .review-card-dash.approved {
+  border-color: rgba(0, 102, 255, 0.4);
+}
+
+body.light-mode .review-card-dash.pending {
+  border-color: rgba(200, 150, 0, 0.4);
+}
+
+body.light-mode .review-comment-dash {
+  color: #4a4a4a;
+}
+
+body.light-mode .review-date-dash {
+  color: #888888;
+}
+
+body.light-mode .review-status .status-approved {
+  background: linear-gradient(135deg, #0066ff, #7b2ffc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.light-mode .review-status .status-pending {
+  color: #cc8800;
+}
+
+body.light-mode .approve-btn {
+  background: rgba(0, 102, 255, 0.08);
+  border-color: #0066ff;
+  color: #0066ff;
+}
+
+body.light-mode .approve-btn:hover {
+  background: rgba(0, 102, 255, 0.15);
+}
+
+body.light-mode .reject-btn {
+  background: rgba(204, 51, 51, 0.05);
+  border-color: rgba(204, 51, 51, 0.3);
+  color: #cc3333;
+}
+
+body.light-mode .reject-btn:hover {
+  background: rgba(204, 51, 51, 0.15);
+}
+
+body.light-mode .dashboard-welcome {
+  color: #4a4a4a;
+}
+
+body.light-mode .login-error {
+  color: #cc3333;
+}
+
+body.light-mode .skill-card-dash h4 {
+  color: #0066ff;
+}
+
+body.light-mode .review-card-dash h4 {
+  color: #0066ff;
+}
+
+body.light-mode .profile-preview {
+  border-color: #0066ff;
+}
+
+body.light-mode .profile-info-form input {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .profile-info-form input:focus {
+  border-color: #0066ff;
+}
+
+body.light-mode .comment-item-manage {
+  border-bottom-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .comment-info strong {
+  color: #0066ff;
+}
+
+body.light-mode .comment-info p {
+  color: #4a4a4a;
+}
+
+body.light-mode .comment-manage-card h4 {
+  color: #0066ff;
+}
+
+body.light-mode .delete-comment-btn {
+  color: #cc3333;
+  border-color: rgba(204, 51, 51, 0.3);
+  background: rgba(204, 51, 51, 0.05);
+}
+
+body.light-mode .delete-comment-btn:hover {
+  background: rgba(204, 51, 51, 0.15);
+}
+
+body.light-mode .clear-comments-btn {
+  color: #cc3333;
+  border-color: rgba(204, 51, 51, 0.2);
+  background: rgba(204, 51, 51, 0.05);
+}
+
+body.light-mode .clear-comments-btn:hover {
+  background: rgba(204, 51, 51, 0.15);
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .section-header .btn-primary {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .skills-grid-dash {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .profile-info-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .skills-grid-dash {
+    grid-template-columns: 1fr;
+  }
+  
+  .login-box {
+    padding: 25px 20px;
+    margin: 0 15px;
+  }
+  
+  .dashboard {
+    padding: 80px 0 30px;
+  }
+  
+  .profile-preview {
+    width: 100px;
+    height: 100px;
+  }
+}

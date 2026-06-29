@@ -1,0 +1,340 @@
+.reviews {
+  min-height: 100vh;
+  background: transparent;
+  padding: 80px 0;
+}
+
+.review-form {
+  max-width: 600px;
+  margin: 0 auto 50px;
+  padding: 35px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.review-form:hover {
+  border-color: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 212, 255, 0.05);
+}
+
+.review-form h3 {
+  font-size: 1.6rem;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.review-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.review-form input,
+.review-form textarea {
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  color: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.review-form input::placeholder,
+.review-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.review-form input:focus,
+.review-form textarea:focus {
+  outline: none;
+  border-color: #00d4ff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.05);
+}
+
+.review-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.rating-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.rating-select label {
+  color: #b0b0b0;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #3a3a3a;
+  padding: 0 3px;
+  line-height: 1;
+}
+
+.star-btn.active {
+  color: #ffd700;
+  transform: scale(1.1);
+}
+
+.star-btn:hover {
+  transform: scale(1.2);
+  color: #ffd700;
+}
+
+.review-form .btn-primary {
+  align-self: flex-start;
+  margin-top: 5px;
+}
+
+.review-note {
+  margin-top: 18px;
+  padding: 14px 20px;
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 212, 255, 0.08);
+  color: #888888;
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.reviews-list {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.review-card {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 22px 25px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.review-card:hover {
+  border-color: rgba(0, 212, 255, 0.15);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+.review-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.review-header h3 {
+  font-size: 1.15rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.review-rating {
+  display: flex;
+  gap: 4px;
+}
+
+.review-rating .filled {
+  color: #ffd700;
+}
+
+.review-rating svg {
+  font-size: 1.1rem;
+  color: #3a3a3a;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: #555555;
+  margin-top: 4px;
+}
+
+.review-comment {
+  color: #b0b0b0;
+  line-height: 1.8;
+  font-size: 0.98rem;
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+.no-reviews {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #666666;
+  font-size: 1.2rem;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 20px;
+  border: 2px dashed rgba(255, 255, 255, 0.05);
+}
+
+.review-form .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success-message {
+  color: #00ff88;
+  font-size: 1rem;
+  padding: 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  text-align: center;
+}
+
+body.light-mode .review-form {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .review-form h3 {
+  color: #1a1a2e;
+}
+
+body.light-mode .review-form input,
+body.light-mode .review-form textarea {
+  background: rgba(0, 0, 0, 0.05);
+  color: #1a1a2e;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .review-form input::placeholder,
+body.light-mode .review-form textarea::placeholder {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+body.light-mode .review-form input:focus,
+body.light-mode .review-form textarea:focus {
+  border-color: #0066ff;
+}
+
+body.light-mode .review-note {
+  background: rgba(0, 102, 255, 0.05);
+  border-color: rgba(0, 102, 255, 0.1);
+  color: #4a4a4a;
+}
+
+body.light-mode .review-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .review-card:hover {
+  border-color: rgba(0, 102, 255, 0.2);
+}
+
+body.light-mode .review-header h3 {
+  color: #1a1a2e;
+}
+
+body.light-mode .review-comment {
+  color: #4a4a4a;
+}
+
+body.light-mode .review-date {
+  color: #888888;
+}
+
+body.light-mode .no-reviews {
+  color: #888888;
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .rating-select label {
+  color: #4a4a4a;
+}
+
+body.light-mode .star-btn {
+  color: #cccccc;
+}
+
+body.light-mode .star-btn.active {
+  color: #ffd700;
+}
+
+@media (max-width: 1024px) {
+  .reviews-list {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .review-form {
+    padding: 25px 20px;
+  }
+  
+  .review-form h3 {
+    font-size: 1.3rem;
+  }
+  
+  .review-form .btn-primary {
+    align-self: stretch;
+    justify-content: center;
+  }
+  
+  .rating-select {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .star-btn {
+    font-size: 1.6rem;
+  }
+  
+  .review-card {
+    padding: 18px 20px;
+  }
+  
+  .reviews-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .reviews {
+    padding: 60px 0;
+  }
+  
+  .review-form {
+    padding: 20px 15px;
+  }
+  
+  .review-card {
+    padding: 15px;
+  }
+  
+  .review-header h3 {
+    font-size: 1rem;
+  }
+  
+  .star-btn {
+    font-size: 1.3rem;
+  }
+}
