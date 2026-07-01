@@ -31,8 +31,8 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      // ✅ استخدام الـ Backend Proxy (API Key موجود في .env)
-      const response = await fetch('http://localhost:5000/api/chat', {
+      // ✅ التعديل هنا: استخدم `/api/chat` بدل `http://localhost:5000/api/chat`
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

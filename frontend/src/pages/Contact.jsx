@@ -25,7 +25,8 @@ const Contact = () => {
     setError(false);
     
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
+      // ✅ التعديل هنا: استخدم `/api/contact` بدل `http://localhost:5000/api/contact`
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
