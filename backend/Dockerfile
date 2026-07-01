@@ -1,5 +1,6 @@
 FROM node:18-alpine
 
+# Updated for Railway deployment
 WORKDIR /app
 
 COPY package*.json ./
