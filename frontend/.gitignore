@@ -1,24 +1,19 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+# مجلدات dependencies
+**/node_modules/
+node_modules/
 
-node_modules
-dist
-dist-ssr
-*.local
+# ملفات البيئة (ممنوع رفعها)
+**/.env
+.env
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ملفات lock
+**/package-lock.json
+package-lock.json
+
+# إعدادات المحرر
+.vscode/
+.idea/
+
+# ملفات النظام
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
