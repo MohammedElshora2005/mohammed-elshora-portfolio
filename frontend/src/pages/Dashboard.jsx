@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { supabase } from '../supabase';
 import { 
   FaPlus, 
   FaEdit, 
@@ -51,71 +52,217 @@ const Dashboard = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loading, setLoading] = useState(true);
   
-  const [projects, setProjects] = useState(() => {
-    const saved = localStorage.getItem('projects');
-    return saved ? JSON.parse(saved) : [];
+  const [projects, setProjects] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [aboutText, setAboutText] = useState('');
+  const [reviews, setReviews] = useState([]);
+  const [profileImage, setProfileImage] = useState('/src/assets/hero.png');
+  const [profileInfo, setProfileInfo] = useState({
+    email: '',
+    phone: '',
+    location: '',
+    experience: ''
   });
-  
-  const [skills, setSkills] = useState(() => {
-    const saved = localStorage.getItem('skills');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
-  const [aboutText, setAboutText] = useState(() => {
-    const saved = localStorage.getItem('aboutText');
-    return saved || "I'm Mohammed Elshora, a passionate Full Stack Developer...";
-  });
-  
-  const [reviews, setReviews] = useState(() => {
-    const saved = localStorage.getItem('reviews');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [profileImage, setProfileImage] = useState(() => {
-    const saved = localStorage.getItem('profileImage');
-    return saved || '/src/assets/hero.png';
-  });
-
-  const [profileInfo, setProfileInfo] = useState(() => {
-    const saved = localStorage.getItem('profileInfo');
-    return saved ? JSON.parse(saved) : {
-      email: 'muhammedhosni70@gmail.com',
-      phone: '01020063819',
-      location: 'Egypt',
-      experience: '3+ Years'
-    };
-  });
-
-  const [projectInteractions, setProjectInteractions] = useState(() => {
-    const saved = localStorage.getItem('projectInteractions');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [certInteractions, setCertInteractions] = useState(() => {
-    const saved = localStorage.getItem('certInteractions');
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  const [certificates, setCertificates] = useState(() => {
-    const saved = localStorage.getItem('certificates');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [homeContent, setHomeContent] = useState(() => {
-    const saved = localStorage.getItem('homeContent');
-    return saved ? JSON.parse(saved) : {
-      subtitle: 'Full Stack Developer',
-      description: "I build exceptional digital experiences with React, Node.js, and modern web technologies. Passionate about creating clean, performant, and user-friendly applications."
-    };
+  const [projectInteractions, setProjectInteractions] = useState({});
+  const [certInteractions, setCertInteractions] = useState({});
+  const [certificates, setCertificates] = useState([]);
+  const [homeContent, setHomeContent] = useState({
+    subtitle: 'Full Stack Developer',
+    description: "I build exceptional digital experiences with React, Node.js, and modern web technologies. Passionate about creating clean, performant, and user-friendly applications."
   });
 
   const [editing, setEditing] = useState(null);
   const [editForm, setEditForm] = useState({});
 
-  // ✅ استخدام Environment Variables للـ Login Credentials
-  const ADMIN_USER = import.meta.env.VITE_ADMIN_USER || process.env.ADMIN_USER || 'mohammed';
-  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || process.env.ADMIN_PASS || 'elshora2026';
+  const ADMIN_USER = import.meta.env.VITE_ADMIN_USER || 'mohammed';
+  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || 'elshora2026';
+
+  // ====== Load all data from Supabase ======
+  const loadAllData = async () => {
+    setLoading(true);
+    try {
+      // Load projects
+      const { data: projectsData } = await supabase.from('projects').select('*').order('id', { ascending: false });
+      if (projectsData) setProjects(projectsData);
+
+      // Load skills
+      const { data: skillsData } = await supabase.from('skills').select('*');
+      if (skillsData) setSkills(skillsData);
+
+      // Load certificates
+      const { data: certsData } = await supabase.from('certificates').select('*').order('id', { ascending: false });
+      if (certsData) setCertificates(certsData);
+
+      // Load reviews
+      const { data: reviewsData } = await supabase.from('reviews').select('*').order('id', { ascending: false });
+      if (reviewsData) setReviews(reviewsData);
+
+      // Load profile info
+      const { data: profileData } = await supabase.from('profile_info').select('*').limit(1);
+      if (profileData && profileData.length > 0) {
+        setProfileInfo(profileData[0]);
+      }
+
+      // Load interactions
+      const { data: interactionsData } = await supabase.from('interactions').select('*');
+      if (interactionsData) {
+        const projectInter = {};
+        const certInter = {};
+        interactionsData.forEach(item => {
+          if (item.type === 'project') {
+            projectInter[item.item_id] = {
+              likes: item.likes || 0,
+              liked: false,
+              comments: item.comments || [],
+              rating: item.rating || 0
+            };
+          } else if (item.type === 'certificate') {
+            certInter[item.item_id] = {
+              likes: item.likes || 0,
+              liked: false,
+              comments: item.comments || [],
+              rating: item.rating || 0
+            };
+          }
+        });
+        setProjectInteractions(projectInter);
+        setCertInteractions(certInter);
+      }
+
+      // Load about text
+      const { data: aboutData } = await supabase.from('profile_info').select('about_text').limit(1);
+      if (aboutData && aboutData.length > 0 && aboutData[0].about_text) {
+        setAboutText(aboutData[0].about_text);
+      } else {
+        setAboutText("I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
+      }
+
+      // Load profile image from localStorage (keep as is for now)
+      const savedImage = localStorage.getItem('profileImage');
+      if (savedImage) setProfileImage(savedImage);
+
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ====== Save functions with Supabase ======
+  const saveProjects = async (newProjects) => {
+    // Delete all existing projects
+    await supabase.from('projects').delete().neq('id', 0);
+    // Insert new projects
+    if (newProjects.length > 0) {
+      const { error } = await supabase.from('projects').insert(
+        newProjects.map(p => ({
+          title: p.title,
+          description: p.description,
+          long_description: p.longDescription,
+          tech: p.tech,
+          github: p.github,
+          live: p.live,
+          video: p.video,
+          image: p.image
+        }))
+      );
+      if (error) console.error('Error saving projects:', error);
+    }
+    setProjects(newProjects);
+  };
+
+  const saveSkills = async (newSkills) => {
+    await supabase.from('skills').delete().neq('id', 0);
+    if (newSkills.length > 0) {
+      const { error } = await supabase.from('skills').insert(
+        newSkills.map(s => ({
+          name: s.name,
+          icon: s.icon,
+          color: s.color,
+          level: s.level
+        }))
+      );
+      if (error) console.error('Error saving skills:', error);
+    }
+    setSkills(newSkills);
+  };
+
+  const saveCertificates = async (newCerts) => {
+    await supabase.from('certificates').delete().neq('id', 0);
+    if (newCerts.length > 0) {
+      const { error } = await supabase.from('certificates').insert(
+        newCerts.map(c => ({
+          title: c.title,
+          issuer: c.issuer,
+          description: c.description,
+          image: c.image,
+          link: c.link,
+          date: c.date
+        }))
+      );
+      if (error) console.error('Error saving certificates:', error);
+    }
+    setCertificates(newCerts);
+  };
+
+  const saveReviews = async (newReviews) => {
+    await supabase.from('reviews').delete().neq('id', 0);
+    if (newReviews.length > 0) {
+      const { error } = await supabase.from('reviews').insert(
+        newReviews.map(r => ({
+          name: r.name,
+          rating: r.rating,
+          comment: r.comment,
+          date: r.date,
+          approved: r.approved
+        }))
+      );
+      if (error) console.error('Error saving reviews:', error);
+    }
+    setReviews(newReviews);
+  };
+
+  const saveProfileInfo = async (e) => {
+    e.preventDefault();
+    try {
+      await supabase.from('profile_info').delete().neq('id', 0);
+      const { error } = await supabase.from('profile_info').insert([{
+        email: profileInfo.email,
+        phone: profileInfo.phone,
+        location: profileInfo.location,
+        experience: profileInfo.experience,
+        about_text: aboutText
+      }]);
+      if (error) throw error;
+      alert('✅ Profile information saved successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('❌ Failed to save profile');
+    }
+  };
+
+  const saveHomeContent = async (e) => {
+    e.preventDefault();
+    try {
+      // Store home content in localStorage for now (since no specific table)
+      localStorage.setItem('homeContent', JSON.stringify(homeContent));
+      alert('✅ Home page content saved successfully!');
+    } catch (error) {
+      console.error('Error saving home content:', error);
+      alert('❌ Failed to save home content');
+    }
+  };
+
+  // ====== Load data on mount ======
+  useEffect(() => {
+    const auth = localStorage.getItem('dashboardAuth');
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+      loadAllData();
+    }
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -123,39 +270,13 @@ const Dashboard = () => {
       setIsAuthenticated(true);
       setLoginError('');
       localStorage.setItem('dashboardAuth', 'true');
+      loadAllData();
     } else {
       setLoginError('Invalid username or password');
     }
   };
 
-  useEffect(() => {
-    const auth = localStorage.getItem('dashboardAuth');
-    if (auth === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const saveData = (key, data) => {
-    localStorage.setItem(key, JSON.stringify(data));
-    if (key === 'projects') setProjects(data);
-    if (key === 'skills') setSkills(data);
-    if (key === 'reviews') setReviews(data);
-    if (key === 'certificates') setCertificates(data);
-  };
-
-  const saveProfileInfo = (e) => {
-    e.preventDefault();
-    localStorage.setItem('profileInfo', JSON.stringify(profileInfo));
-    alert('Profile information saved successfully!');
-  };
-
-  const saveHomeContent = (e) => {
-    e.preventDefault();
-    localStorage.setItem('homeContent', JSON.stringify(homeContent));
-    alert('Home page content saved successfully!');
-  };
-
-  // ====== Projects ======
+  // ====== Projects CRUD ======
   const addProject = () => {
     const newProject = {
       id: Date.now(),
@@ -169,17 +290,17 @@ const Dashboard = () => {
       image: ''
     };
     const newProjects = [newProject, ...projects];
-    saveData('projects', newProjects);
+    saveProjects(newProjects);
   };
 
-  const deleteProject = (id) => {
+  const deleteProject = async (id) => {
     if (window.confirm('Delete this project?')) {
       const newProjects = projects.filter(p => p.id !== id);
-      saveData('projects', newProjects);
+      await saveProjects(newProjects);
     }
   };
 
-  // ====== Skills ======
+  // ====== Skills CRUD ======
   const addSkill = () => {
     const newSkill = {
       id: Date.now(),
@@ -189,17 +310,17 @@ const Dashboard = () => {
       level: 50
     };
     const newSkills = [newSkill, ...skills];
-    saveData('skills', newSkills);
+    saveSkills(newSkills);
   };
 
-  const deleteSkill = (id) => {
+  const deleteSkill = async (id) => {
     if (window.confirm('Delete this skill?')) {
       const newSkills = skills.filter(s => s.id !== id);
-      saveData('skills', newSkills);
+      await saveSkills(newSkills);
     }
   };
 
-  // ====== Certificates ======
+  // ====== Certificates CRUD ======
   const addCertificate = () => {
     const newCert = {
       id: Date.now(),
@@ -211,30 +332,28 @@ const Dashboard = () => {
       date: new Date().toISOString().split('T')[0]
     };
     const newCerts = [newCert, ...certificates];
-    localStorage.setItem('certificates', JSON.stringify(newCerts));
-    setCertificates(newCerts);
+    saveCertificates(newCerts);
   };
 
-  const deleteCertificate = (id) => {
+  const deleteCertificate = async (id) => {
     if (window.confirm('Delete this certificate?')) {
       const newCerts = certificates.filter(c => c.id !== id);
-      localStorage.setItem('certificates', JSON.stringify(newCerts));
-      setCertificates(newCerts);
+      await saveCertificates(newCerts);
     }
   };
 
-  // ====== Reviews ======
-  const approveReview = (id) => {
+  // ====== Reviews CRUD ======
+  const approveReview = async (id) => {
     const newReviews = reviews.map(r => 
       r.id === id ? { ...r, approved: true } : r
     );
-    saveData('reviews', newReviews);
+    await saveReviews(newReviews);
   };
 
-  const deleteReview = (id) => {
+  const deleteReview = async (id) => {
     if (window.confirm('Delete this review permanently?')) {
       const newReviews = reviews.filter(r => r.id !== id);
-      saveData('reviews', newReviews);
+      await saveReviews(newReviews);
     }
   };
 
@@ -252,8 +371,8 @@ const Dashboard = () => {
     }
   };
 
-  // ====== Manage Project Comments ======
-  const deleteComment = (projectId, commentId) => {
+  // ====== Manage Comments ======
+  const deleteComment = async (projectId, commentId) => {
     if (window.confirm('Delete this comment?')) {
       const newInteractions = { ...projectInteractions };
       if (newInteractions[projectId] && newInteractions[projectId].comments) {
@@ -261,24 +380,30 @@ const Dashboard = () => {
           c => c.id !== commentId
         );
         setProjectInteractions(newInteractions);
-        localStorage.setItem('projectInteractions', JSON.stringify(newInteractions));
+        // Update in Supabase
+        await supabase.from('interactions')
+          .update({ comments: newInteractions[projectId].comments })
+          .eq('item_id', projectId)
+          .eq('type', 'project');
       }
     }
   };
 
-  const clearAllComments = (projectId) => {
+  const clearAllComments = async (projectId) => {
     if (window.confirm('Delete all comments from this project?')) {
       const newInteractions = { ...projectInteractions };
       if (newInteractions[projectId]) {
         newInteractions[projectId].comments = [];
         setProjectInteractions(newInteractions);
-        localStorage.setItem('projectInteractions', JSON.stringify(newInteractions));
+        await supabase.from('interactions')
+          .update({ comments: [] })
+          .eq('item_id', projectId)
+          .eq('type', 'project');
       }
     }
   };
 
-  // ====== Manage Certificate Comments ======
-  const deleteCertComment = (certId, commentId) => {
+  const deleteCertComment = async (certId, commentId) => {
     if (window.confirm('Delete this comment?')) {
       const newInteractions = { ...certInteractions };
       if (newInteractions[certId] && newInteractions[certId].comments) {
@@ -286,18 +411,24 @@ const Dashboard = () => {
           c => c.id !== commentId
         );
         setCertInteractions(newInteractions);
-        localStorage.setItem('certInteractions', JSON.stringify(newInteractions));
+        await supabase.from('interactions')
+          .update({ comments: newInteractions[certId].comments })
+          .eq('item_id', certId)
+          .eq('type', 'certificate');
       }
     }
   };
 
-  const clearAllCertComments = (certId) => {
+  const clearAllCertComments = async (certId) => {
     if (window.confirm('Delete all comments from this certificate?')) {
       const newInteractions = { ...certInteractions };
       if (newInteractions[certId]) {
         newInteractions[certId].comments = [];
         setCertInteractions(newInteractions);
-        localStorage.setItem('certInteractions', JSON.stringify(newInteractions));
+        await supabase.from('interactions')
+          .update({ comments: [] })
+          .eq('item_id', certId)
+          .eq('type', 'certificate');
       }
     }
   };
@@ -334,6 +465,19 @@ const Dashboard = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <section className="dashboard">
+        <div className="container">
+          <h2 className="section-title">Dashboard</h2>
+          <p style={{ textAlign: 'center', padding: '50px', color: '#b0b0b0' }}>
+            ⏳ Loading data from Supabase...
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="dashboard">
       <div className="container">
@@ -341,7 +485,7 @@ const Dashboard = () => {
         <p className="dashboard-welcome">Welcome to Dashboard</p>
 
         <div className="dashboard-sections-grid">
-          {/* ====== Profile Information - Full Width ====== */}
+          {/* ====== Profile Information ====== */}
           <div className="dashboard-section dashboard-section-full">
             <div className="section-header">
               <h3>Edit Profile Information</h3>
@@ -350,26 +494,26 @@ const Dashboard = () => {
               <form onSubmit={saveProfileInfo} className="profile-info-form">
                 <input
                   type="text"
-                  value={profileInfo.email}
+                  value={profileInfo.email || ''}
                   onChange={(e) => setProfileInfo({...profileInfo, email: e.target.value})}
                   placeholder="Email"
                   className="full-width"
                 />
                 <input
                   type="text"
-                  value={profileInfo.phone}
+                  value={profileInfo.phone || ''}
                   onChange={(e) => setProfileInfo({...profileInfo, phone: e.target.value})}
                   placeholder="Phone"
                 />
                 <input
                   type="text"
-                  value={profileInfo.location}
+                  value={profileInfo.location || ''}
                   onChange={(e) => setProfileInfo({...profileInfo, location: e.target.value})}
                   placeholder="Location"
                 />
                 <input
                   type="text"
-                  value={profileInfo.experience}
+                  value={profileInfo.experience || ''}
                   onChange={(e) => setProfileInfo({...profileInfo, experience: e.target.value})}
                   placeholder="Experience (e.g., 3+ Years)"
                 />
@@ -377,6 +521,49 @@ const Dashboard = () => {
                   <FaSave /> Save Profile Info
                 </button>
               </form>
+            </div>
+          </div>
+
+          {/* ====== Edit About Me ====== */}
+          <div className="dashboard-section dashboard-section-full">
+            <div className="section-header">
+              <h3>Edit About Me</h3>
+            </div>
+            <div className="dashboard-card">
+              {editing?.type === 'about' ? (
+                <div className="edit-form">
+                  <textarea
+                    value={editForm.text || ''}
+                    onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                    rows="6"
+                    placeholder="About Me Text"
+                  />
+                  <div className="edit-actions">
+                    <button onClick={async () => {
+                      setAboutText(editForm.text);
+                      await saveProfileInfo({ preventDefault: () => {} });
+                      setEditing(null);
+                    }} className="btn-primary">
+                      <FaSave />
+                    </button>
+                    <button onClick={() => setEditing(null)} className="btn-secondary">
+                      <FaTimes />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p>{aboutText || 'No about text set.'}</p>
+                  <div className="card-actions">
+                    <button onClick={() => {
+                      setEditing({ type: 'about', id: 'about' });
+                      setEditForm({ text: aboutText });
+                    }}>
+                      <FaEdit />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -436,87 +623,93 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="dashboard-grid">
-              {projects.map(project => (
-                <div key={project.id} className="dashboard-card">
-                  {editing?.type === 'project' && editing.id === project.id ? (
-                    <div className="edit-form">
-                      <input
-                        value={editForm.title}
-                        onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                        placeholder="Title"
-                      />
-                      <input
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                        placeholder="Description"
-                      />
-                      <input
-                        value={editForm.longDescription}
-                        onChange={(e) => setEditForm({...editForm, longDescription: e.target.value})}
-                        placeholder="Long Description"
-                      />
-                      <input
-                        value={editForm.github}
-                        onChange={(e) => setEditForm({...editForm, github: e.target.value})}
-                        placeholder="GitHub URL"
-                      />
-                      <input
-                        value={editForm.live}
-                        onChange={(e) => setEditForm({...editForm, live: e.target.value})}
-                        placeholder="Live Demo URL"
-                      />
-                      <input
-                        value={editForm.video}
-                        onChange={(e) => setEditForm({...editForm, video: e.target.value})}
-                        placeholder="Video URL (YouTube embed)"
-                      />
-                      <input
-                        value={editForm.image}
-                        onChange={(e) => setEditForm({...editForm, image: e.target.value})}
-                        placeholder="Image URL"
-                      />
-                      <input
-                        value={editForm.tech ? editForm.tech.join(', ') : ''}
-                        onChange={(e) => setEditForm({...editForm, tech: e.target.value.split(',').map(t => t.trim())})}
-                        placeholder="Technologies (comma separated)"
-                      />
-                      <div className="edit-actions">
-                        <button onClick={() => {
-                          const newProjects = projects.map(p => 
-                            p.id === editing.id ? editForm : p
-                          );
-                          saveData('projects', newProjects);
-                          setEditing(null);
-                        }} className="btn-primary">
-                          <FaSave />
-                        </button>
-                        <button onClick={() => setEditing(null)} className="btn-secondary">
-                          <FaTimes />
-                        </button>
+              {projects.length === 0 ? (
+                <p style={{ color: '#6a6a6a', textAlign: 'center', padding: '20px' }}>
+                  No projects yet. Add one!
+                </p>
+              ) : (
+                projects.map(project => (
+                  <div key={project.id} className="dashboard-card">
+                    {editing?.type === 'project' && editing.id === project.id ? (
+                      <div className="edit-form">
+                        <input
+                          value={editForm.title || ''}
+                          onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                          placeholder="Title"
+                        />
+                        <input
+                          value={editForm.description || ''}
+                          onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                          placeholder="Description"
+                        />
+                        <input
+                          value={editForm.longDescription || ''}
+                          onChange={(e) => setEditForm({...editForm, longDescription: e.target.value})}
+                          placeholder="Long Description"
+                        />
+                        <input
+                          value={editForm.github || ''}
+                          onChange={(e) => setEditForm({...editForm, github: e.target.value})}
+                          placeholder="GitHub URL"
+                        />
+                        <input
+                          value={editForm.live || ''}
+                          onChange={(e) => setEditForm({...editForm, live: e.target.value})}
+                          placeholder="Live Demo URL"
+                        />
+                        <input
+                          value={editForm.video || ''}
+                          onChange={(e) => setEditForm({...editForm, video: e.target.value})}
+                          placeholder="Video URL"
+                        />
+                        <input
+                          value={editForm.image || ''}
+                          onChange={(e) => setEditForm({...editForm, image: e.target.value})}
+                          placeholder="Image URL"
+                        />
+                        <input
+                          value={editForm.tech ? editForm.tech.join(', ') : ''}
+                          onChange={(e) => setEditForm({...editForm, tech: e.target.value.split(',').map(t => t.trim())})}
+                          placeholder="Technologies (comma separated)"
+                        />
+                        <div className="edit-actions">
+                          <button onClick={async () => {
+                            const newProjects = projects.map(p => 
+                              p.id === editing.id ? editForm : p
+                            );
+                            await saveProjects(newProjects);
+                            setEditing(null);
+                          }} className="btn-primary">
+                            <FaSave />
+                          </button>
+                          <button onClick={() => setEditing(null)} className="btn-secondary">
+                            <FaTimes />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <>
-                      <h4>{project.title}</h4>
-                      <p>{project.description}</p>
-                      <div className="card-actions">
-                        <button onClick={() => {
-                          setEditing({ type: 'project', id: project.id });
-                          setEditForm(project);
-                        }}>
-                          <FaEdit />
-                        </button>
-                        <button 
-                          className="delete-btn" 
-                          onClick={() => deleteProject(project.id)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <>
+                        <h4>{project.title}</h4>
+                        <p>{project.description}</p>
+                        <div className="card-actions">
+                          <button onClick={() => {
+                            setEditing({ type: 'project', id: project.id });
+                            setEditForm(project);
+                          }}>
+                            <FaEdit />
+                          </button>
+                          <button 
+                            className="delete-btn" 
+                            onClick={() => deleteProject(project.id)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -529,115 +722,118 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="dashboard-grid skills-grid-dash">
-              {skills.map((skill, index) => (
-                <div key={skill.id || index} className="dashboard-card skill-card-dash">
-                  {editing?.type === 'skill' && editing.index === index ? (
-                    <div className="edit-form">
-                      <input
-                        value={editForm.name}
-                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                        placeholder="Skill Name"
-                      />
-                      <select
-                        value={editForm.icon || 'FaReact'}
-                        onChange={(e) => setEditForm({...editForm, icon: e.target.value})}
-                        className="icon-select"
-                      >
-                        <optgroup label="Frontend">
-                          <option value="FaHtml5">HTML5</option>
-                          <option value="FaCss3Alt">CSS3</option>
-                          <option value="FaJs">JavaScript</option>
-                          <option value="SiTypescript">TypeScript</option>
-                          <option value="FaReact">React</option>
-                          <option value="SiNextdotjs">Next.js</option>
-                          <option value="FaVuejs">Vue.js</option>
-                          <option value="FaAngular">Angular</option>
-                        </optgroup>
-                        <optgroup label="Backend">
-                          <option value="FaNodeJs">Node.js</option>
-                          <option value="FaPython">Python</option>
-                          <option value="SiDjango">Django</option>
-                          <option value="SiFlask">Flask</option>
-                          <option value="FaPhp">PHP</option>
-                          <option value="FaJava">Java</option>
-                        </optgroup>
-                        <optgroup label="Database">
-                          <option value="SiMongodb">MongoDB</option>
-                          <option value="SiPostgresql">PostgreSQL</option>
-                          <option value="FaDatabase">SQL</option>
-                          <option value="SiRedis">Redis</option>
-                        </optgroup>
-                        <optgroup label="DevOps & Cloud">
-                          <option value="FaDocker">Docker</option>
-                          <option value="SiKubernetes">Kubernetes</option>
-                          <option value="FaAws">AWS</option>
-                          <option value="SiTerraform">Terraform</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                          <option value="SiTailwindcss">Tailwind</option>
-                          <option value="SiGraphql">GraphQL</option>
-                          <option value="FaGitAlt">Git</option>
-                        </optgroup>
-                      </select>
-                      <input
-                        value={editForm.icon || ''}
-                        onChange={(e) => setEditForm({...editForm, icon: e.target.value})}
-                        placeholder="Or type icon name manually (e.g., FaWordpress, SiFigma)"
-                        className="icon-manual-input"
-                      />
-                      <small style={{ color: '#6a6a6a', fontSize: '0.75rem' }}>
-                        💡 Find icon names at: https://react-icons.github.io/react-icons/
-                      </small>
-                      <input
-                        type="color"
-                        value={editForm.color || '#00d4ff'}
-                        onChange={(e) => setEditForm({...editForm, color: e.target.value})}
-                        className="color-picker"
-                      />
-                      <input
-                        value={editForm.level}
-                        type="number"
-                        min="0"
-                        max="100"
-                        onChange={(e) => setEditForm({...editForm, level: parseInt(e.target.value) || 0})}
-                        placeholder="Level (0-100)"
-                      />
-                      <div className="edit-actions">
-                        <button onClick={() => {
-                          const newSkills = [...skills];
-                          newSkills[index] = editForm;
-                          saveData('skills', newSkills);
-                          setEditing(null);
-                        }} className="btn-primary">
-                          <FaSave />
-                        </button>
-                        <button onClick={() => setEditing(null)} className="btn-secondary">
-                          <FaTimes />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <h4>{skill.name}</h4>
-                      <p>{skill.level}%</p>
-                      <div className="card-actions">
-                        <button onClick={() => {
-                          setEditing({ type: 'skill', index: index });
-                          setEditForm(skill);
-                        }}>
-                          <FaEdit />
-                        </button>
-                        <button 
-                          className="delete-btn" 
-                          onClick={() => deleteSkill(skill.id)}
+              {skills.length === 0 ? (
+                <p style={{ color: '#6a6a6a', textAlign: 'center', padding: '20px' }}>
+                  No skills yet. Add one!
+                </p>
+              ) : (
+                skills.map((skill, index) => (
+                  <div key={skill.id || index} className="dashboard-card skill-card-dash">
+                    {editing?.type === 'skill' && editing.index === index ? (
+                      <div className="edit-form">
+                        <input
+                          value={editForm.name || ''}
+                          onChange={(e) => setEditForm({...editForm, name: e.target.value})}
+                          placeholder="Skill Name"
+                        />
+                        <select
+                          value={editForm.icon || 'FaReact'}
+                          onChange={(e) => setEditForm({...editForm, icon: e.target.value})}
+                          className="icon-select"
                         >
-                          <FaTrash />
-                        </button>
+                          <optgroup label="Frontend">
+                            <option value="FaHtml5">HTML5</option>
+                            <option value="FaCss3Alt">CSS3</option>
+                            <option value="FaJs">JavaScript</option>
+                            <option value="SiTypescript">TypeScript</option>
+                            <option value="FaReact">React</option>
+                            <option value="SiNextdotjs">Next.js</option>
+                            <option value="FaVuejs">Vue.js</option>
+                            <option value="FaAngular">Angular</option>
+                          </optgroup>
+                          <optgroup label="Backend">
+                            <option value="FaNodeJs">Node.js</option>
+                            <option value="FaPython">Python</option>
+                            <option value="SiDjango">Django</option>
+                            <option value="SiFlask">Flask</option>
+                            <option value="FaPhp">PHP</option>
+                            <option value="FaJava">Java</option>
+                          </optgroup>
+                          <optgroup label="Database">
+                            <option value="SiMongodb">MongoDB</option>
+                            <option value="SiPostgresql">PostgreSQL</option>
+                            <option value="FaDatabase">SQL</option>
+                            <option value="SiRedis">Redis</option>
+                          </optgroup>
+                          <optgroup label="DevOps & Cloud">
+                            <option value="FaDocker">Docker</option>
+                            <option value="SiKubernetes">Kubernetes</option>
+                            <option value="FaAws">AWS</option>
+                            <option value="SiTerraform">Terraform</option>
+                          </optgroup>
+                          <optgroup label="Other">
+                            <option value="SiTailwindcss">Tailwind</option>
+                            <option value="SiGraphql">GraphQL</option>
+                            <option value="FaGitAlt">Git</option>
+                          </optgroup>
+                        </select>
+                        <input
+                          value={editForm.icon || ''}
+                          onChange={(e) => setEditForm({...editForm, icon: e.target.value})}
+                          placeholder="Or type icon name manually"
+                          className="icon-manual-input"
+                        />
+                        <input
+                          type="color"
+                          value={editForm.color || '#00d4ff'}
+                          onChange={(e) => setEditForm({...editForm, color: e.target.value})}
+                          className="color-picker"
+                        />
+                        <input
+                          value={editForm.level || 0}
+                          type="number"
+                          min="0"
+                          max="100"
+                          onChange={(e) => setEditForm({...editForm, level: parseInt(e.target.value) || 0})}
+                          placeholder="Level (0-100)"
+                        />
+                        <div className="edit-actions">
+                          <button onClick={async () => {
+                            const newSkills = [...skills];
+                            newSkills[index] = editForm;
+                            await saveSkills(newSkills);
+                            setEditing(null);
+                          }} className="btn-primary">
+                            <FaSave />
+                          </button>
+                          <button onClick={() => setEditing(null)} className="btn-secondary">
+                            <FaTimes />
+                          </button>
+                        </div>
                       </div>
-                    </>
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      <>
+                        <h4>{skill.name}</h4>
+                        <p>{skill.level}%</p>
+                        <div className="card-actions">
+                          <button onClick={() => {
+                            setEditing({ type: 'skill', index: index });
+                            setEditForm(skill);
+                          }}>
+                            <FaEdit />
+                          </button>
+                          <button 
+                            className="delete-btn" 
+                            onClick={() => deleteSkill(skill.id)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -650,127 +846,89 @@ const Dashboard = () => {
               </button>
             </div>
             <div className="dashboard-grid">
-              {certificates.map(cert => (
-                <div key={cert.id} className="dashboard-card">
-                  {editing?.type === 'certificate' && editing.id === cert.id ? (
-                    <div className="edit-form">
-                      <input
-                        value={editForm.title}
-                        onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                        placeholder="Certificate Title"
-                      />
-                      <input
-                        value={editForm.issuer}
-                        onChange={(e) => setEditForm({...editForm, issuer: e.target.value})}
-                        placeholder="Issuer"
-                      />
-                      <textarea
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({...editForm, description: e.target.value})}
-                        placeholder="Description"
-                        rows="3"
-                      />
-                      <input
-                        value={editForm.image}
-                        onChange={(e) => setEditForm({...editForm, image: e.target.value})}
-                        placeholder="Image URL"
-                      />
-                      <input
-                        value={editForm.link}
-                        onChange={(e) => setEditForm({...editForm, link: e.target.value})}
-                        placeholder="Verification Link"
-                      />
-                      <input
-                        type="date"
-                        value={editForm.date}
-                        onChange={(e) => setEditForm({...editForm, date: e.target.value})}
-                      />
-                      <div className="edit-actions">
-                        <button onClick={() => {
-                          const newCerts = certificates.map(c => 
-                            c.id === editing.id ? editForm : c
-                          );
-                          localStorage.setItem('certificates', JSON.stringify(newCerts));
-                          setCertificates(newCerts);
-                          setEditing(null);
-                        }} className="btn-primary">
-                          <FaSave />
-                        </button>
-                        <button onClick={() => setEditing(null)} className="btn-secondary">
-                          <FaTimes />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <h4>{cert.title}</h4>
-                      <p>{cert.issuer}</p>
-                      <small>{cert.date}</small>
-                      <div className="card-actions">
-                        <button onClick={() => {
-                          setEditing({ type: 'certificate', id: cert.id });
-                          setEditForm(cert);
-                        }}>
-                          <FaEdit />
-                        </button>
-                        <button 
-                          className="delete-btn" 
-                          onClick={() => deleteCertificate(cert.id)}
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ====== Edit About Me - Full Width ====== */}
-          <div className="dashboard-section dashboard-section-full">
-            <div className="section-header">
-              <h3>Edit About Me</h3>
-            </div>
-            <div className="dashboard-card">
-              {editing?.type === 'about' ? (
-                <div className="edit-form">
-                  <textarea
-                    value={editForm.text}
-                    onChange={(e) => setEditForm({...editForm, text: e.target.value})}
-                    rows="6"
-                    placeholder="About Me Text"
-                  />
-                  <div className="edit-actions">
-                    <button onClick={() => {
-                      saveData('aboutText', editForm.text);
-                      setAboutText(editForm.text);
-                      setEditing(null);
-                    }} className="btn-primary">
-                      <FaSave />
-                    </button>
-                    <button onClick={() => setEditing(null)} className="btn-secondary">
-                      <FaTimes />
-                    </button>
-                  </div>
-                </div>
+              {certificates.length === 0 ? (
+                <p style={{ color: '#6a6a6a', textAlign: 'center', padding: '20px' }}>
+                  No certificates yet. Add one!
+                </p>
               ) : (
-                <>
-                  <p>{aboutText}</p>
-                  <div className="card-actions">
-                    <button onClick={() => {
-                      setEditing({ type: 'about', id: 'about' });
-                      setEditForm({ text: aboutText });
-                    }}>
-                      <FaEdit />
-                    </button>
+                certificates.map(cert => (
+                  <div key={cert.id} className="dashboard-card">
+                    {editing?.type === 'certificate' && editing.id === cert.id ? (
+                      <div className="edit-form">
+                        <input
+                          value={editForm.title || ''}
+                          onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                          placeholder="Certificate Title"
+                        />
+                        <input
+                          value={editForm.issuer || ''}
+                          onChange={(e) => setEditForm({...editForm, issuer: e.target.value})}
+                          placeholder="Issuer"
+                        />
+                        <textarea
+                          value={editForm.description || ''}
+                          onChange={(e) => setEditForm({...editForm, description: e.target.value})}
+                          placeholder="Description"
+                          rows="3"
+                        />
+                        <input
+                          value={editForm.image || ''}
+                          onChange={(e) => setEditForm({...editForm, image: e.target.value})}
+                          placeholder="Image URL"
+                        />
+                        <input
+                          value={editForm.link || ''}
+                          onChange={(e) => setEditForm({...editForm, link: e.target.value})}
+                          placeholder="Verification Link"
+                        />
+                        <input
+                          type="date"
+                          value={editForm.date || ''}
+                          onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                        />
+                        <div className="edit-actions">
+                          <button onClick={async () => {
+                            const newCerts = certificates.map(c => 
+                              c.id === editing.id ? editForm : c
+                            );
+                            await saveCertificates(newCerts);
+                            setEditing(null);
+                          }} className="btn-primary">
+                            <FaSave />
+                          </button>
+                          <button onClick={() => setEditing(null)} className="btn-secondary">
+                            <FaTimes />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <h4>{cert.title}</h4>
+                        <p>{cert.issuer}</p>
+                        <small>{cert.date}</small>
+                        <div className="card-actions">
+                          <button onClick={() => {
+                            setEditing({ type: 'certificate', id: cert.id });
+                            setEditForm(cert);
+                          }}>
+                            <FaEdit />
+                          </button>
+                          <button 
+                            className="delete-btn" 
+                            onClick={() => deleteCertificate(cert.id)}
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
-                </>
+                ))
               )}
             </div>
           </div>
 
-          {/* ====== Manage Reviews - Full Width ====== */}
+          {/* ====== Manage Reviews ====== */}
           <div className="dashboard-section dashboard-section-full">
             <div className="section-header">
               <h3>Manage Reviews</h3>
@@ -817,7 +975,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* ====== Manage Project Comments - Full Width ====== */}
+          {/* ====== Manage Project Comments ====== */}
           <div className="dashboard-section dashboard-section-full">
             <div className="section-header">
               <h3>Manage Project Comments</h3>
@@ -866,7 +1024,7 @@ const Dashboard = () => {
             )}
           </div>
 
-          {/* ====== Manage Certificate Comments - Full Width ====== */}
+          {/* ====== Manage Certificate Comments ====== */}
           <div className="dashboard-section dashboard-section-full">
             <div className="section-header">
               <h3>Manage Certificate Comments</h3>
