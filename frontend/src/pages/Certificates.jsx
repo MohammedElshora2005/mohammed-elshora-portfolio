@@ -18,104 +18,128 @@ const Certificates = () => {
   const [loading, setLoading] = useState(true);
 
   // ====== Load certificates and interactions from Supabase ======
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load certificates
-        const { data: certsData, error: certsError } = await supabase
-          .from('certificates')
-          .select('*')
-          .order('id', { ascending: false });
-        
-        if (certsError) throw certsError;
-        
-        if (certsData && certsData.length > 0) {
-          setCertificates(certsData);
-        } else {
-          // بيانات افتراضية
-          const defaultCerts = [
-            {
-              id: 1,
-              title: 'Full Stack Web Development',
-              issuer: 'Coursera',
-              description: 'Completed the Full Stack Web Development specialization covering React, Node.js, MongoDB, and Express.',
-              image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop',
-              link: 'https://coursera.org/verify/12345',
-              date: '2024-01-15'
-            },
-            {
-              id: 2,
-              title: 'Machine Learning Specialization',
-              issuer: 'Stanford University',
-              description: 'Completed the Machine Learning course covering supervised learning, neural networks, and deep learning.',
-              image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=600&h=400&fit=crop',
-              link: 'https://coursera.org/verify/67890',
-              date: '2023-11-20'
-            },
-            {
-              id: 3,
-              title: 'Python for Data Science',
-              issuer: 'IBM',
-              description: 'Completed Python for Data Science course covering pandas, numpy, matplotlib, and data analysis.',
-              image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=400&fit=crop',
-              link: 'https://coursera.org/verify/54321',
-              date: '2023-09-10'
-            }
-          ];
-          setCertificates(defaultCerts);
-          
-          // Save default certificates to Supabase
-          const { error: insertError } = await supabase
-            .from('certificates')
-            .insert(defaultCerts.map(c => ({
-              title: c.title,
-              issuer: c.issuer,
-              description: c.description,
-              image: c.image,
-              link: c.link,
-              date: c.date
-            })));
-          
-          if (insertError) console.error('Error inserting default certs:', insertError);
-        }
-
-        // Load interactions
-        const { data: interactionsData, error: interactionsError } = await supabase
-          .from('interactions')
-          .select('*')
-          .eq('type', 'certificate');
-        
-        if (interactionsError) throw interactionsError;
-        
-        if (interactionsData) {
-          const inter = {};
-          interactionsData.forEach(item => {
-            inter[item.item_id] = {
-              likes: item.likes || 0,
-              liked: false,
-              comments: item.comments || [],
-              rating: item.rating || 0
-            };
-          });
-          setInteractions(inter);
-        }
-      } catch (error) {
-        console.error('Error loading certificates:', error);
-        // Fallback to localStorage
-        const saved = localStorage.getItem('certificates');
-        if (saved) {
-          try {
-            setCertificates(JSON.parse(saved));
-          } catch (e) {
-            setCertificates([]);
+  const loadData = async () => {
+    try {
+      // Load certificates
+      const { data: certsData, error: certsError } = await supabase
+        .from('certificates')
+        .select('*')
+        .order('id', { ascending: false });
+      
+      if (certsError) throw certsError;
+      
+      if (certsData && certsData.length > 0) {
+        setCertificates(certsData);
+      } else {
+        // بيانات افتراضية
+        const defaultCerts = [
+          {
+            id: 1,
+            title: 'Full Stack Web Development',
+            issuer: 'Coursera',
+            description: 'Completed the Full Stack Web Development specialization covering React, Node.js, MongoDB, and Express.',
+            image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop',
+            link: 'https://coursera.org/verify/12345',
+            date: '2024-01-15'
+          },
+          {
+            id: 2,
+            title: 'Machine Learning Specialization',
+            issuer: 'Stanford University',
+            description: 'Completed the Machine Learning course covering supervised learning, neural networks, and deep learning.',
+            image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=600&h=400&fit=crop',
+            link: 'https://coursera.org/verify/67890',
+            date: '2023-11-20'
+          },
+          {
+            id: 3,
+            title: 'Python for Data Science',
+            issuer: 'IBM',
+            description: 'Completed Python for Data Science course covering pandas, numpy, matplotlib, and data analysis.',
+            image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=400&fit=crop',
+            link: 'https://coursera.org/verify/54321',
+            date: '2023-09-10'
           }
-        }
-      } finally {
-        setLoading(false);
+        ];
+        setCertificates(defaultCerts);
+        
+        // Save default certificates to Supabase
+        const { error: insertError } = await supabase
+          .from('certificates')
+          .insert(defaultCerts.map(c => ({
+            title: c.title,
+            issuer: c.issuer,
+            description: c.description,
+            image: c.image,
+            link: c.link,
+            date: c.date
+          })));
+        
+        if (insertError) console.error('Error inserting default certs:', insertError);
       }
-    };
 
+      // Load interactions
+      const { data: interactionsData, error: interactionsError } = await supabase
+        .from('interactions')
+        .select('*')
+        .eq('type', 'certificate');
+      
+      if (interactionsError) throw interactionsError;
+      
+      if (interactionsData) {
+        const inter = {};
+        interactionsData.forEach(item => {
+          inter[item.item_id] = {
+            likes: item.likes || 0,
+            liked: false,
+            comments: item.comments || [],
+            rating: item.rating || 0
+          };
+        });
+        setInteractions(inter);
+      }
+    } catch (error) {
+      console.error('Error loading certificates:', error);
+      // Fallback to localStorage
+      const saved = localStorage.getItem('certificates');
+      if (saved) {
+        try {
+          setCertificates(JSON.parse(saved));
+        } catch (e) {
+          setCertificates([]);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ====== Load data on mount ======
+  useEffect(() => {
     loadData();
+  }, []);
+
+  // ====== Listen for real-time changes from Supabase ======
+  useEffect(() => {
+    const subscription = supabase
+      .channel('certificates_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'certificates'
+        },
+        () => {
+          console.log('🔄 Certificates changed, reloading...');
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // ====== Handle Like ======
