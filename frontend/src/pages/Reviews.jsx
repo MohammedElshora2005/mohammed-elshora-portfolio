@@ -2,50 +2,116 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
+import { supabase } from '../supabase';
 import './Reviews.css';
 
 const Reviews = () => {
-  const [reviews, setReviews] = useState(() => {
-    const saved = localStorage.getItem('reviews');
-    return saved ? JSON.parse(saved) : [];
-  });
-  
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     rating: 5,
     comment: ''
   });
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
+  // ====== Load reviews from Supabase ======
   useEffect(() => {
-    localStorage.setItem('reviews', JSON.stringify(reviews));
-  }, [reviews]);
+    const loadReviews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('approved', true)
+          .order('id', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (data) {
+          setReviews(data);
+        }
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem('reviews');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setReviews(parsed.filter(r => r.approved));
+          } catch (e) {
+            setReviews([]);
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    loadReviews();
+  }, []);
 
-  const handleSubmit = (e) => {
+  // ====== Handle Submit Review ======
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.comment) {
       alert('Please fill all fields');
       return;
     }
     
-    const newReview = {
-      id: Date.now(),
-      ...formData,
-      rating: parseInt(formData.rating),
-      date: new Date().toLocaleDateString(),
-      approved: false
-    };
+    setSubmitLoading(true);
+    setSuccessMessage('');
     
-    setReviews([newReview, ...reviews]);
-    setFormData({ name: '', rating: 5, comment: '' });
-    
-    alert('Review submitted! Waiting for approval.');
+    try {
+      const newReview = {
+        name: formData.name,
+        rating: parseInt(formData.rating),
+        comment: formData.comment,
+        date: new Date().toLocaleDateString(),
+        approved: false
+      };
+      
+      // Save to Supabase
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert([newReview])
+        .select();
+      
+      if (error) throw error;
+      
+      // Update local state
+      if (data) {
+        setReviews(prev => [...prev, ...data]);
+      }
+      
+      setFormData({ name: '', rating: 5, comment: '' });
+      setSuccessMessage('✅ Review submitted! Waiting for approval.');
+      
+      setTimeout(() => setSuccessMessage(''), 5000);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      alert('❌ Failed to submit review. Please try again.');
+    } finally {
+      setSubmitLoading(false);
+    }
   };
 
-  const approvedReviews = reviews.filter(r => r.approved);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  if (loading) {
+    return (
+      <section id="reviews" className="reviews">
+        <div className="container">
+          <h2 className="section-title" data-aos="fade-up">Reviews</h2>
+          <p style={{ textAlign: 'center', padding: '50px', color: '#b0b0b0' }}>
+            ⏳ Loading reviews...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="reviews" className="reviews">
@@ -62,6 +128,7 @@ const Reviews = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              disabled={submitLoading}
             />
             <div className="rating-select">
               <label>Rating:</label>
@@ -71,6 +138,7 @@ const Reviews = () => {
                   type="button"
                   className={`star-btn ${formData.rating >= star ? 'active' : ''}`}
                   onClick={() => setFormData({ ...formData, rating: star })}
+                  disabled={submitLoading}
                 >
                   <FaStar />
                 </button>
@@ -83,21 +151,23 @@ const Reviews = () => {
               onChange={handleChange}
               rows="4"
               required
+              disabled={submitLoading}
             />
-            <button type="submit" className="btn-primary">
-              Submit Review
+            <button type="submit" className="btn-primary" disabled={submitLoading}>
+              {submitLoading ? 'Submitting...' : 'Submit Review'}
             </button>
           </form>
+          {successMessage && <p className="success-message">{successMessage}</p>}
           <p className="review-note">
             Your review will be visible after admin approval.
           </p>
         </div>
 
         <div className="reviews-list">
-          {approvedReviews.length === 0 ? (
+          {reviews.length === 0 ? (
             <p className="no-reviews">No reviews yet. Be the first!</p>
           ) : (
-            approvedReviews.map((review) => (
+            reviews.map((review) => (
               <div key={review.id} className="review-card" data-aos="fade-up">
                 <div className="review-header">
                   <h3>{review.name}</h3>
