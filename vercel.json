@@ -1,0 +1,22 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/dist/index.html"
+    }
+  ],
+  "builds": [
+    {
+      "src": "frontend/dist/**",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "api/**",
+      "use": "@vercel/node"
+    }
+  ]
+}
