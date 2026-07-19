@@ -15,48 +15,87 @@ const Projects = () => {
   const [currentUser, setCurrentUser] = useState(() => {
     return localStorage.getItem('currentUser') || '';
   });
+  const [loading, setLoading] = useState(true);
 
   // ====== Load projects and interactions from Supabase ======
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Load projects
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('projects')
-          .select('*')
-          .order('id', { ascending: false });
-        
-        if (projectsError) throw projectsError;
-        if (projectsData) {
-          setProjects(projectsData);
-        }
-
-        // Load interactions
-        const { data: interactionsData, error: interactionsError } = await supabase
-          .from('interactions')
-          .select('*')
-          .eq('type', 'project');
-        
-        if (interactionsError) throw interactionsError;
-        
-        if (interactionsData) {
-          const inter = {};
-          interactionsData.forEach(item => {
-            inter[item.item_id] = {
-              likes: item.likes || 0,
-              liked: false,
-              comments: item.comments || [],
-              rating: item.rating || 0
-            };
-          });
-          setInteractions(inter);
-        }
-      } catch (error) {
-        console.error('Error loading projects:', error);
+  const loadData = async () => {
+    try {
+      // Load projects
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('*')
+        .order('id', { ascending: false });
+      
+      if (projectsError) throw projectsError;
+      if (projectsData) {
+        setProjects(projectsData);
       }
-    };
 
+      // Load interactions
+      const { data: interactionsData, error: interactionsError } = await supabase
+        .from('interactions')
+        .select('*')
+        .eq('type', 'project');
+      
+      if (interactionsError) throw interactionsError;
+      
+      if (interactionsData) {
+        const inter = {};
+        interactionsData.forEach(item => {
+          inter[item.item_id] = {
+            likes: item.likes || 0,
+            liked: false,
+            comments: item.comments || [],
+            rating: item.rating || 0
+          };
+        });
+        setInteractions(inter);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ====== Load data on mount ======
+  useEffect(() => {
     loadData();
+  }, []);
+
+  // ====== Listen for real-time changes from Supabase ======
+  useEffect(() => {
+    const subscription = supabase
+      .channel('projects_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects'
+        },
+        () => {
+          console.log('🔄 Projects changed, reloading...');
+          loadData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'interactions'
+        },
+        () => {
+          console.log('🔄 Interactions changed, reloading...');
+          loadData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // ====== Handle Like ======
@@ -76,13 +115,10 @@ const Projects = () => {
     
     setInteractions(newInteractions);
     
-    // Update Supabase
     try {
       const { error } = await supabase
         .from('interactions')
-        .update({ 
-          likes: newInteractions[projectId].likes
-        })
+        .update({ likes: newInteractions[projectId].likes })
         .eq('item_id', projectId)
         .eq('type', 'project');
       
@@ -122,13 +158,10 @@ const Projects = () => {
     setNewComment({ ...newComment, [projectId]: '' });
     setCommentRating({ ...commentRating, [projectId]: 0 });
     
-    // Update Supabase
     try {
       const { error } = await supabase
         .from('interactions')
-        .update({ 
-          comments: newInteractions[projectId].comments
-        })
+        .update({ comments: newInteractions[projectId].comments })
         .eq('item_id', projectId)
         .eq('type', 'project');
       
@@ -147,7 +180,6 @@ const Projects = () => {
     newInteractions[projectId].rating = rating;
     setInteractions(newInteractions);
     
-    // Update Supabase
     try {
       const { error } = await supabase
         .from('interactions')
@@ -170,6 +202,19 @@ const Projects = () => {
     setSelectedProject(null);
     document.body.style.overflow = 'auto';
   };
+
+  if (loading) {
+    return (
+      <section id="projects" className="projects">
+        <div className="container">
+          <h2 className="section-title" data-aos="fade-up">My Projects</h2>
+          <p style={{ textAlign: 'center', padding: '50px', color: '#b0b0b0' }}>
+            ⏳ Loading projects...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
