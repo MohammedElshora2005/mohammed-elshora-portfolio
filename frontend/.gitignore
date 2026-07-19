@@ -7,6 +7,8 @@ node_modules/
 # ملفات البيئة (ممنوع رفعها)
 **/.env
 .env
+frontend/.env
+backend/.env
 
 # ملفات lock
 **/package-lock.json
@@ -19,3 +21,12 @@ package-lock.json
 # ملفات النظام
 .DS_Store
 Thumbs.db
+
+# ملفات البناء
+dist/
+build/
+*.log
+
+# ملفات مؤقتة
+*.tmp
+*.temp
