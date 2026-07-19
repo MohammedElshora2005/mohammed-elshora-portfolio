@@ -103,6 +103,9 @@ const Dashboard = () => {
       const { data: profileData } = await supabase.from('profile_info').select('*').limit(1);
       if (profileData && profileData.length > 0) {
         setProfileInfo(profileData[0]);
+        if (profileData[0].about_text) {
+          setAboutText(profileData[0].about_text);
+        }
       }
 
       // Load interactions
@@ -131,14 +134,6 @@ const Dashboard = () => {
         setCertInteractions(certInter);
       }
 
-      // Load about text
-      const { data: aboutData } = await supabase.from('profile_info').select('about_text').limit(1);
-      if (aboutData && aboutData.length > 0 && aboutData[0].about_text) {
-        setAboutText(aboutData[0].about_text);
-      } else {
-        setAboutText("I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
-      }
-
       // Load profile image from localStorage (keep as is for now)
       const savedImage = localStorage.getItem('profileImage');
       if (savedImage) setProfileImage(savedImage);
@@ -152,9 +147,7 @@ const Dashboard = () => {
 
   // ====== Save functions with Supabase ======
   const saveProjects = async (newProjects) => {
-    // Delete all existing projects
     await supabase.from('projects').delete().neq('id', 0);
-    // Insert new projects
     if (newProjects.length > 0) {
       const { error } = await supabase.from('projects').insert(
         newProjects.map(p => ({
@@ -246,7 +239,6 @@ const Dashboard = () => {
   const saveHomeContent = async (e) => {
     e.preventDefault();
     try {
-      // Store home content in localStorage for now (since no specific table)
       localStorage.setItem('homeContent', JSON.stringify(homeContent));
       alert('✅ Home page content saved successfully!');
     } catch (error) {
@@ -263,6 +255,79 @@ const Dashboard = () => {
       loadAllData();
     }
   }, []);
+
+  // ====== Listen for real-time changes ======
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const subscription = supabase
+      .channel('dashboard_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profile_info'
+        },
+        () => {
+          console.log('🔄 Profile info changed, reloading...');
+          loadAllData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects'
+        },
+        () => {
+          console.log('🔄 Projects changed, reloading...');
+          loadAllData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'skills'
+        },
+        () => {
+          console.log('🔄 Skills changed, reloading...');
+          loadAllData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'certificates'
+        },
+        () => {
+          console.log('🔄 Certificates changed, reloading...');
+          loadAllData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews'
+        },
+        () => {
+          console.log('🔄 Reviews changed, reloading...');
+          loadAllData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [isAuthenticated]);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -380,7 +445,6 @@ const Dashboard = () => {
           c => c.id !== commentId
         );
         setProjectInteractions(newInteractions);
-        // Update in Supabase
         await supabase.from('interactions')
           .update({ comments: newInteractions[projectId].comments })
           .eq('item_id', projectId)
