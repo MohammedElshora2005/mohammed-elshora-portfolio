@@ -2,62 +2,124 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaPlay, FaHeart, FaComment, FaStar, FaAward } from 'react-icons/fa';
+import { supabase } from '../supabase';
 import './Certificates.css';
 
 const Certificates = () => {
   const [selectedCert, setSelectedCert] = useState(null);
-  const [certificates, setCertificates] = useState(() => {
-    const saved = localStorage.getItem('certificates');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [
-      {
-        id: 1,
-        title: 'Full Stack Web Development',
-        issuer: 'Coursera',
-        description: 'Completed the Full Stack Web Development specialization covering React, Node.js, MongoDB, and Express.',
-        image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop',
-        link: 'https://coursera.org/verify/12345',
-        date: '2024-01-15'
-      },
-      {
-        id: 2,
-        title: 'Machine Learning Specialization',
-        issuer: 'Stanford University',
-        description: 'Completed the Machine Learning course covering supervised learning, neural networks, and deep learning.',
-        image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=600&h=400&fit=crop',
-        link: 'https://coursera.org/verify/67890',
-        date: '2023-11-20'
-      },
-      {
-        id: 3,
-        title: 'Python for Data Science',
-        issuer: 'IBM',
-        description: 'Completed Python for Data Science course covering pandas, numpy, matplotlib, and data analysis.',
-        image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=400&fit=crop',
-        link: 'https://coursera.org/verify/54321',
-        date: '2023-09-10'
-      }
-    ];
-  });
-
-  const [interactions, setInteractions] = useState(() => {
-    const saved = localStorage.getItem('certInteractions');
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [certificates, setCertificates] = useState([]);
+  const [interactions, setInteractions] = useState({});
   const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
   const [commentRating, setCommentRating] = useState({});
   const [currentUser, setCurrentUser] = useState(() => {
     return localStorage.getItem('currentUser') || '';
   });
+  const [loading, setLoading] = useState(true);
 
-  const handleLike = (certId) => {
+  // ====== Load certificates and interactions from Supabase ======
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Load certificates
+        const { data: certsData, error: certsError } = await supabase
+          .from('certificates')
+          .select('*')
+          .order('id', { ascending: false });
+        
+        if (certsError) throw certsError;
+        
+        if (certsData && certsData.length > 0) {
+          setCertificates(certsData);
+        } else {
+          // بيانات افتراضية
+          const defaultCerts = [
+            {
+              id: 1,
+              title: 'Full Stack Web Development',
+              issuer: 'Coursera',
+              description: 'Completed the Full Stack Web Development specialization covering React, Node.js, MongoDB, and Express.',
+              image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop',
+              link: 'https://coursera.org/verify/12345',
+              date: '2024-01-15'
+            },
+            {
+              id: 2,
+              title: 'Machine Learning Specialization',
+              issuer: 'Stanford University',
+              description: 'Completed the Machine Learning course covering supervised learning, neural networks, and deep learning.',
+              image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?w=600&h=400&fit=crop',
+              link: 'https://coursera.org/verify/67890',
+              date: '2023-11-20'
+            },
+            {
+              id: 3,
+              title: 'Python for Data Science',
+              issuer: 'IBM',
+              description: 'Completed Python for Data Science course covering pandas, numpy, matplotlib, and data analysis.',
+              image: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&h=400&fit=crop',
+              link: 'https://coursera.org/verify/54321',
+              date: '2023-09-10'
+            }
+          ];
+          setCertificates(defaultCerts);
+          
+          // Save default certificates to Supabase
+          const { error: insertError } = await supabase
+            .from('certificates')
+            .insert(defaultCerts.map(c => ({
+              title: c.title,
+              issuer: c.issuer,
+              description: c.description,
+              image: c.image,
+              link: c.link,
+              date: c.date
+            })));
+          
+          if (insertError) console.error('Error inserting default certs:', insertError);
+        }
+
+        // Load interactions
+        const { data: interactionsData, error: interactionsError } = await supabase
+          .from('interactions')
+          .select('*')
+          .eq('type', 'certificate');
+        
+        if (interactionsError) throw interactionsError;
+        
+        if (interactionsData) {
+          const inter = {};
+          interactionsData.forEach(item => {
+            inter[item.item_id] = {
+              likes: item.likes || 0,
+              liked: false,
+              comments: item.comments || [],
+              rating: item.rating || 0
+            };
+          });
+          setInteractions(inter);
+        }
+      } catch (error) {
+        console.error('Error loading certificates:', error);
+        // Fallback to localStorage
+        const saved = localStorage.getItem('certificates');
+        if (saved) {
+          try {
+            setCertificates(JSON.parse(saved));
+          } catch (e) {
+            setCertificates([]);
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  // ====== Handle Like ======
+  const handleLike = async (certId) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[certId]) {
       newInteractions[certId] = { likes: 0, liked: false, comments: [], rating: 0 };
@@ -72,10 +134,22 @@ const Certificates = () => {
     }
     
     setInteractions(newInteractions);
-    localStorage.setItem('certInteractions', JSON.stringify(newInteractions));
+    
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ likes: newInteractions[certId].likes })
+        .eq('item_id', certId)
+        .eq('type', 'certificate');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating like:', error);
+    }
   };
 
-  const handleAddComment = (certId) => {
+  // ====== Handle Add Comment ======
+  const handleAddComment = async (certId) => {
     if (!currentUser.trim()) {
       alert('Please enter your name first!');
       return;
@@ -90,28 +164,53 @@ const Certificates = () => {
       newInteractions[certId].comments = [];
     }
     
-    newInteractions[certId].comments.push({
+    const comment = {
       id: Date.now(),
       username: currentUser,
       text: newComment[certId],
       rating: commentRating[certId] || 0,
       date: new Date().toLocaleDateString()
-    });
+    };
+    
+    newInteractions[certId].comments.push(comment);
     
     setInteractions(newInteractions);
-    localStorage.setItem('certInteractions', JSON.stringify(newInteractions));
     setNewComment({ ...newComment, [certId]: '' });
     setCommentRating({ ...commentRating, [certId]: 0 });
+    
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ comments: newInteractions[certId].comments })
+        .eq('item_id', certId)
+        .eq('type', 'certificate');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
   };
 
-  const handleRating = (certId, rating) => {
+  // ====== Handle Rating ======
+  const handleRating = async (certId, rating) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[certId]) {
       newInteractions[certId] = { likes: 0, liked: false, comments: [], rating: 0 };
     }
     newInteractions[certId].rating = rating;
     setInteractions(newInteractions);
-    localStorage.setItem('certInteractions', JSON.stringify(newInteractions));
+    
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ rating: rating })
+        .eq('item_id', certId)
+        .eq('type', 'certificate');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating rating:', error);
+    }
   };
 
   const openModal = (cert) => {
@@ -123,6 +222,19 @@ const Certificates = () => {
     setSelectedCert(null);
     document.body.style.overflow = 'auto';
   };
+
+  if (loading) {
+    return (
+      <section id="certificates" className="certificates">
+        <div className="container">
+          <h2 className="section-title" data-aos="fade-up">My Certificates</h2>
+          <p style={{ textAlign: 'center', padding: '50px', color: '#b0b0b0' }}>
+            ⏳ Loading certificates...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -253,7 +365,7 @@ const Certificates = () => {
         </div>
       </section>
 
-      {/* ====== Modal خارج الـ section ====== */}
+      {/* ====== Modal ====== */}
       {selectedCert && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
