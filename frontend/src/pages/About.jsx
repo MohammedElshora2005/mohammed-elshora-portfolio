@@ -1,37 +1,81 @@
 // Mohammed_Portfolio\frontend\src\pages\About.jsx
 
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabase';
 import './About.css';
 
 const About = () => {
   const [aboutText, setAboutText] = useState('');
   const [profileInfo, setProfileInfo] = useState({
-    email: 'muhammedhosni70@gmail.com',
-    phone: '01020063819',
-    location: 'Egypt',
-    experience: '3+ Years'
+    email: '',
+    phone: '',
+    location: '',
+    experience: ''
   });
+  const [loading, setLoading] = useState(true);
 
+  // ====== Load profile info and about text from Supabase ======
   useEffect(() => {
-    const savedAbout = localStorage.getItem('aboutText');
-    if (savedAbout) {
-      setAboutText(savedAbout);
-    } else {
-      setAboutText("I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
-    }
-    
-    const savedInfo = localStorage.getItem('profileInfo');
-    if (savedInfo) {
-      setProfileInfo(JSON.parse(savedInfo));
-    }
+    const loadProfile = async () => {
+      try {
+        // Load profile info
+        const { data: profileData, error: profileError } = await supabase
+          .from('profile_info')
+          .select('*')
+          .limit(1);
+        
+        if (profileError) throw profileError;
+        
+        if (profileData && profileData.length > 0) {
+          const info = profileData[0];
+          setProfileInfo({
+            email: info.email || 'muhammedhosni70@gmail.com',
+            phone: info.phone || '01020063819',
+            location: info.location || 'Egypt',
+            experience: info.experience || '3+ Years'
+          });
+          setAboutText(info.about_text || "I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
+        } else {
+          // بيانات افتراضية
+          setProfileInfo({
+            email: 'muhammedhosni70@gmail.com',
+            phone: '01020063819',
+            location: 'Egypt',
+            experience: '3+ Years'
+          });
+          setAboutText("I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+        // Fallback to localStorage
+        const savedAbout = localStorage.getItem('aboutText');
+        if (savedAbout) {
+          setAboutText(savedAbout);
+        }
+        const savedInfo = localStorage.getItem('profileInfo');
+        if (savedInfo) {
+          try {
+            setProfileInfo(JSON.parse(savedInfo));
+          } catch (e) {
+            // keep defaults
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
   }, []);
 
-  // الاستماع للتغييرات في localStorage
+  // ====== Listen for changes (for real-time updates) ======
   useEffect(() => {
     const handleStorageChange = () => {
       const savedInfo = localStorage.getItem('profileInfo');
       if (savedInfo) {
-        setProfileInfo(JSON.parse(savedInfo));
+        try {
+          setProfileInfo(JSON.parse(savedInfo));
+        } catch (e) {}
       }
       const savedAbout = localStorage.getItem('aboutText');
       if (savedAbout) {
@@ -42,6 +86,19 @@ const About = () => {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  if (loading) {
+    return (
+      <section id="about" className="about">
+        <div className="container">
+          <h2 className="section-title" data-aos="fade-up">About Me</h2>
+          <p style={{ textAlign: 'center', padding: '50px', color: '#b0b0b0' }}>
+            ⏳ Loading profile...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="about" className="about">
