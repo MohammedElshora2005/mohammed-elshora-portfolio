@@ -11,62 +11,86 @@ const Skills = () => {
   const [loading, setLoading] = useState(true);
 
   // ====== Load skills from Supabase ======
-  useEffect(() => {
-    const loadSkills = async () => {
-      try {
-        const { data, error } = await supabase
+  const loadSkills = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('skills')
+        .select('*')
+        .order('id', { ascending: true });
+      
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setSkills(data);
+      } else {
+        // لو مفيش بيانات، استخدم البيانات الافتراضية
+        const defaultSkills = [
+          { id: 1, name: 'HTML5', icon: 'FaHtml5', color: '#E44D26', level: 95 },
+          { id: 2, name: 'CSS3', icon: 'FaCss3Alt', color: '#1572B6', level: 90 },
+          { id: 3, name: 'JavaScript', icon: 'FaJs', color: '#F7DF1E', level: 85 },
+          { id: 4, name: 'React', icon: 'FaReact', color: '#61DAFB', level: 85 },
+          { id: 5, name: 'Node.js', icon: 'FaNodeJs', color: '#339933', level: 80 },
+          { id: 6, name: 'Python', icon: 'FaPython', color: '#3776AB', level: 70 },
+        ];
+        setSkills(defaultSkills);
+        
+        // حفظ البيانات الافتراضية في Supabase
+        const { error: insertError } = await supabase
           .from('skills')
-          .select('*')
-          .order('id', { ascending: true });
+          .insert(defaultSkills.map(s => ({
+            name: s.name,
+            icon: s.icon,
+            color: s.color,
+            level: s.level
+          })));
         
-        if (error) throw error;
-        
-        if (data && data.length > 0) {
-          setSkills(data);
-        } else {
-          // لو مفيش بيانات، استخدم البيانات الافتراضية
-          const defaultSkills = [
-            { id: 1, name: 'HTML5', icon: 'FaHtml5', color: '#E44D26', level: 95 },
-            { id: 2, name: 'CSS3', icon: 'FaCss3Alt', color: '#1572B6', level: 90 },
-            { id: 3, name: 'JavaScript', icon: 'FaJs', color: '#F7DF1E', level: 85 },
-            { id: 4, name: 'React', icon: 'FaReact', color: '#61DAFB', level: 85 },
-            { id: 5, name: 'Node.js', icon: 'FaNodeJs', color: '#339933', level: 80 },
-            { id: 6, name: 'Python', icon: 'FaPython', color: '#3776AB', level: 70 },
-          ];
-          setSkills(defaultSkills);
-          
-          // حفظ البيانات الافتراضية في Supabase
-          const { error: insertError } = await supabase
-            .from('skills')
-            .insert(defaultSkills.map(s => ({
-              name: s.name,
-              icon: s.icon,
-              color: s.color,
-              level: s.level
-            })));
-          
-          if (insertError) console.error('Error inserting default skills:', insertError);
-        }
-      } catch (error) {
-        console.error('Error loading skills:', error);
-        // في حالة الخطأ، استخدم localStorage
-        const saved = localStorage.getItem('skills');
-        if (saved) {
-          try {
-            setSkills(JSON.parse(saved));
-          } catch (e) {
-            setSkills([]);
-          }
-        }
-      } finally {
-        setLoading(false);
+        if (insertError) console.error('Error inserting default skills:', insertError);
       }
-    };
+    } catch (error) {
+      console.error('Error loading skills:', error);
+      // في حالة الخطأ، استخدم localStorage
+      const saved = localStorage.getItem('skills');
+      if (saved) {
+        try {
+          setSkills(JSON.parse(saved));
+        } catch (e) {
+          setSkills([]);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // ====== Load data on mount ======
+  useEffect(() => {
     loadSkills();
   }, []);
 
-  // ====== Listen for changes from Dashboard ======
+  // ====== Listen for real-time changes from Supabase ======
+  useEffect(() => {
+    const subscription = supabase
+      .channel('skills_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'skills'
+        },
+        () => {
+          console.log('🔄 Skills changed, reloading...');
+          loadSkills();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // ====== Listen for changes from Dashboard (localStorage) ======
   useEffect(() => {
     const handleStorageChange = () => {
       const saved = localStorage.getItem('skills');
