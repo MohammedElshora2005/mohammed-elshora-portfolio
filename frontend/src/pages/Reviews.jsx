@@ -17,38 +17,62 @@ const Reviews = () => {
   const [successMessage, setSuccessMessage] = useState('');
 
   // ====== Load reviews from Supabase ======
-  useEffect(() => {
-    const loadReviews = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('approved', true)
-          .order('id', { ascending: false });
-        
-        if (error) throw error;
-        
-        if (data) {
-          setReviews(data);
-        }
-      } catch (error) {
-        console.error('Error loading reviews:', error);
-        // Fallback to localStorage
-        const saved = localStorage.getItem('reviews');
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            setReviews(parsed.filter(r => r.approved));
-          } catch (e) {
-            setReviews([]);
-          }
-        }
-      } finally {
-        setLoading(false);
+  const loadReviews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('approved', true)
+        .order('id', { ascending: false });
+      
+      if (error) throw error;
+      
+      if (data) {
+        setReviews(data);
       }
-    };
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      // Fallback to localStorage
+      const saved = localStorage.getItem('reviews');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          setReviews(parsed.filter(r => r.approved));
+        } catch (e) {
+          setReviews([]);
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  // ====== Load data on mount ======
+  useEffect(() => {
     loadReviews();
+  }, []);
+
+  // ====== Listen for real-time changes from Supabase ======
+  useEffect(() => {
+    const subscription = supabase
+      .channel('reviews_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reviews'
+        },
+        () => {
+          console.log('🔄 Reviews changed, reloading...');
+          loadReviews();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // ====== Handle Submit Review ======
