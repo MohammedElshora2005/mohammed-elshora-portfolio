@@ -2,15 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaPlay, FaHeart, FaComment, FaStar } from 'react-icons/fa';
+import { supabase } from '../supabase';
 import './Projects.css';
 
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
-  const [interactions, setInteractions] = useState(() => {
-    const saved = localStorage.getItem('projectInteractions');
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [interactions, setInteractions] = useState({});
   const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
   const [commentRating, setCommentRating] = useState({});
@@ -18,18 +16,51 @@ const Projects = () => {
     return localStorage.getItem('currentUser') || '';
   });
 
+  // ====== Load projects and interactions from Supabase ======
   useEffect(() => {
-    const saved = localStorage.getItem('projects');
-    if (saved) {
+    const loadData = async () => {
       try {
-        setProjects(JSON.parse(saved));
-      } catch (e) {
-        setProjects([]);
+        // Load projects
+        const { data: projectsData, error: projectsError } = await supabase
+          .from('projects')
+          .select('*')
+          .order('id', { ascending: false });
+        
+        if (projectsError) throw projectsError;
+        if (projectsData) {
+          setProjects(projectsData);
+        }
+
+        // Load interactions
+        const { data: interactionsData, error: interactionsError } = await supabase
+          .from('interactions')
+          .select('*')
+          .eq('type', 'project');
+        
+        if (interactionsError) throw interactionsError;
+        
+        if (interactionsData) {
+          const inter = {};
+          interactionsData.forEach(item => {
+            inter[item.item_id] = {
+              likes: item.likes || 0,
+              liked: false,
+              comments: item.comments || [],
+              rating: item.rating || 0
+            };
+          });
+          setInteractions(inter);
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
       }
-    }
+    };
+
+    loadData();
   }, []);
 
-  const handleLike = (projectId) => {
+  // ====== Handle Like ======
+  const handleLike = async (projectId) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[projectId]) {
       newInteractions[projectId] = { likes: 0, liked: false, comments: [], rating: 0 };
@@ -44,10 +75,25 @@ const Projects = () => {
     }
     
     setInteractions(newInteractions);
-    localStorage.setItem('projectInteractions', JSON.stringify(newInteractions));
+    
+    // Update Supabase
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ 
+          likes: newInteractions[projectId].likes
+        })
+        .eq('item_id', projectId)
+        .eq('type', 'project');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating like:', error);
+    }
   };
 
-  const handleAddComment = (projectId) => {
+  // ====== Handle Add Comment ======
+  const handleAddComment = async (projectId) => {
     if (!currentUser.trim()) {
       alert('Please enter your name first!');
       return;
@@ -62,28 +108,57 @@ const Projects = () => {
       newInteractions[projectId].comments = [];
     }
     
-    newInteractions[projectId].comments.push({
+    const comment = {
       id: Date.now(),
       username: currentUser,
       text: newComment[projectId],
       rating: commentRating[projectId] || 0,
       date: new Date().toLocaleDateString()
-    });
+    };
+    
+    newInteractions[projectId].comments.push(comment);
     
     setInteractions(newInteractions);
-    localStorage.setItem('projectInteractions', JSON.stringify(newInteractions));
     setNewComment({ ...newComment, [projectId]: '' });
     setCommentRating({ ...commentRating, [projectId]: 0 });
+    
+    // Update Supabase
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ 
+          comments: newInteractions[projectId].comments
+        })
+        .eq('item_id', projectId)
+        .eq('type', 'project');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
   };
 
-  const handleRating = (projectId, rating) => {
+  // ====== Handle Rating ======
+  const handleRating = async (projectId, rating) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[projectId]) {
       newInteractions[projectId] = { likes: 0, liked: false, comments: [], rating: 0 };
     }
     newInteractions[projectId].rating = rating;
     setInteractions(newInteractions);
-    localStorage.setItem('projectInteractions', JSON.stringify(newInteractions));
+    
+    // Update Supabase
+    try {
+      const { error } = await supabase
+        .from('interactions')
+        .update({ rating: rating })
+        .eq('item_id', projectId)
+        .eq('type', 'project');
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating rating:', error);
+    }
   };
 
   const openModal = (project) => {
@@ -227,7 +302,7 @@ const Projects = () => {
         </div>
       </section>
 
-      {/* ====== Modal خارج الـ section ====== */}
+      {/* ====== Modal ====== */}
       {selectedProject && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -247,7 +322,7 @@ const Projects = () => {
             </div>
             <div className="modal-body">
               <h2>{selectedProject.title}</h2>
-              <p className="modal-description">{selectedProject.longDescription || selectedProject.description}</p>
+              <p className="modal-description">{selectedProject.long_description || selectedProject.description}</p>
               <div className="modal-tech">
                 <h4>Technologies Used:</h4>
                 <div className="tech-stack">
