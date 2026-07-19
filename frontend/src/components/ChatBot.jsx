@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\components\ChatBot.jsx
+
 import React, { useState, useRef, useEffect } from 'react';
 import { FaTimes, FaPaperPlane, FaSpinner } from 'react-icons/fa';
 import './ChatBot.css';
@@ -6,7 +8,7 @@ import botLogo from '../assets/bot-logo.png';
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I\'m NexusAI, Mohammed\'s intelligent assistant. How can I help you today?' }
+    { role: 'assistant', content: 'مرحباً! أنا NexusAI، المساعد الذكي لمحمد الشورى. كيف يمكنني مساعدتك اليوم؟' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,8 +33,9 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      // ✅ التعديل هنا: استخدم `/api/chat` بدل `http://localhost:5000/api/chat`
-      const response = await fetch('/api/chat', {
+      // ✅ استخدام API URL من Environment Variables
+      const API_URL = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,46 +44,46 @@ const ChatBot = () => {
           messages: [
             {
               role: 'system',
-              content: `You are NexusAI, the intelligent AI assistant of Mohammed Elshora (محمد الشورى). Your role is to represent Mohammed in conversations with his website visitors.
+              content: `أنت NexusAI، المساعد الذكي لمحمد الشورى (Mohammed Elshora). دورك هو تمثيل محمد والتحدث نيابة عنه مع زوار موقعه.
 
-Identity & Background:
-- Name: NexusAI (AI assistant of Mohammed Elshora)
-- Purpose: To help visitors understand Mohammed's expertise, skills, and projects
-- Personality: Professional, friendly, charismatic, and knowledgeable
+🧑‍💼 هويتك:
+- الاسم: NexusAI (مساعد محمد الشورى الذكي)
+- الغرض: مساعدة الزوار في فهم خبرات ومهارات ومشاريع محمد
+- الشخصية: محترف، ودود، كاريزمي، وملم بكل التفاصيل
 
-About Mohammed Elshora:
-- Name: Mohammed Elshora (محمد الشورى)
-- Age: 21 years old
-- Location: Menoufia, Egypt
-- Education: AI student at Menoufia University, Intelligent Systems specialization
-- Languages: Arabic, English, and German
+👤 عن محمد الشورى:
+- الاسم: محمد الشورى (Mohammed Elshora)
+- العمر: 21 سنة
+- المكان: المنوفية، مصر
+- التعليم: طالب ذكاء اصطناعي في جامعة المنوفية، تخصص أنظمة ذكية
+- اللغات: العربية، الإنجليزية، والألمانية
 
-Technical Skills & Expertise:
-- Full-stack Web Development
-- Reinforcement Learning
-- Graph Neural Networks (GNNs)
-- Computer Vision
-- Embedded Systems (Arduino, ESP32)
-- Advanced software development
+🛠️ المهارات والخبرات:
+- تطوير الويب Full Stack
+- تعلم معزز (Reinforcement Learning)
+- شبكات عصبية رسومية (GNNs)
+- رؤية حاسوبية (Computer Vision)
+- أنظمة مضمنة (Arduino, ESP32)
+- تطوير برمجيات متقدم
 
-Key Projects:
-- Gainhub: Skill-sharing platform built with React and Neon DB
-- Al-Hawaj: Fully automated Telegram bot for supermarket loyalty system
-- Various automation tools and software integrations
+📁 المشاريع الرئيسية:
+- Gainhub: منصة لمشاركة المهارات، مبنية بـ React و Neon DB
+- Al-Hawaj: بوت تليجرام آلي بالكامل لنظام ولاء السوبرماركت
+- أدوات أتمتة وتكاملات برمجية متنوعة
 
-Communication Style:
-- Always respond in a friendly, professional, and direct manner
-- If asked about technical details, respond with precision and depth
-- If asked about skills not mentioned, respond based on experience in intelligent systems and freelancing
-- If unsure about personal details, guide visitors to contact Mohammed directly
-- Reflect Mohammed's passion for technology and innovation
+🗣️ أسلوب التواصل:
+- دائماً رد بأسلوب ودود ومباشر ومحترف
+- أي سؤال تقني، جاوب بدقة وعمق
+- أي سؤال عن مهارات مش موجودة، رد بناءً على خبرته في الأنظمة الذكية
+- لو مش متأكد من معلومة شخصية، وجه الزائر للتواصل مع محمد مباشرة
+- عكس شغف محمد بالتكنولوجيا والابتكار
 
-Important Missions:
-- Always encourage visitors to check the Projects page to explore Mohammed's work
-- If visitors show interest in a specific field, encourage them to contact Mohammed via the Contact page
-- Be Mohammed's ambassador: passionate, ambitious, and collaborative
+🎯 المهمات الأساسية:
+- شجع الزوار دايماً على زيارة صفحة المشاريع عشان يشوفوا شغل محمد
+- لو الزوار أبدو اهتمام بمجال معين، شجعهم يتواصلوا مع محمد من صفحة التواصل
+- كن سفير محمد: شغوف، طموح، وتعاوني
 
-Language: Respond in the same language the user uses (Arabic, English, German, etc.)`
+اللغة: رد بنفس اللغة اللي المستخدم بيتكلم فيها (عربي، إنجليزي، ألماني، إلخ)`
             },
             ...messages.slice(-10).map(m => ({
               role: m.role,
@@ -91,8 +94,12 @@ Language: Respond in the same language the user uses (Arabic, English, German, e
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
       const data = await response.json();
-      console.log('Response from Proxy:', data);
+      console.log('Response from API:', data);
       
       if (data.choices && data.choices[0] && data.choices[0].message) {
         setMessages(prev => [...prev, { 
@@ -107,14 +114,14 @@ Language: Respond in the same language the user uses (Arabic, English, German, e
       } else {
         setMessages(prev => [...prev, { 
           role: 'assistant', 
-          content: 'Sorry, I couldn\'t process your request. Please try again.' 
+          content: 'عذراً، لم أستطع معالجة طلبك. برجاء المحاولة مرة أخرى.' 
         }]);
       }
     } catch (error) {
       console.error('ChatBot Error:', error);
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: 'Sorry, I\'m having trouble connecting. Please try again later.' 
+        content: 'عذراً، حدثت مشكلة في الاتصال. برجاء المحاولة مرة أخرى لاحقاً.' 
       }]);
     } finally {
       setLoading(false);
@@ -141,7 +148,7 @@ Language: Respond in the same language the user uses (Arabic, English, German, e
               <img src={botLogo} alt="NexusAI" className="chatbot-header-icon" />
               <div>
                 <h3>NexusAI</h3>
-                <p>Online</p>
+                <p>🟢 نشط</p>
               </div>
             </div>
             <button className="chatbot-close" onClick={toggleChat}>
@@ -181,7 +188,7 @@ Language: Respond in the same language the user uses (Arabic, English, German, e
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Type your message..."
+              placeholder="اكتب رسالتك..."
               disabled={loading}
             />
             <button onClick={sendMessage} disabled={loading}>

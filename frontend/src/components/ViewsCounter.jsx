@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\components\ViewsCounter.jsx
+
 import React, { useState, useEffect } from 'react';
 import { FaEye } from 'react-icons/fa';
 

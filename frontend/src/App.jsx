@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\App.jsx
+
 import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AOS from 'aos';

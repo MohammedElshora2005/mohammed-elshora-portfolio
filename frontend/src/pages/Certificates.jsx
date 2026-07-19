@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Certificates.jsx
+
 import React, { useState, useEffect } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaPlay, FaHeart, FaComment, FaStar, FaAward } from 'react-icons/fa';
 import './Certificates.css';

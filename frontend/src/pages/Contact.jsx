@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Contact.jsx
+
 import React, { useState } from 'react';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaGithub, FaLinkedin, FaWhatsapp, FaTelegram } from 'react-icons/fa';
 import './Contact.css';
@@ -25,8 +27,9 @@ const Contact = () => {
     setError(false);
     
     try {
-      // ✅ التعديل هنا: استخدم `/api/contact` بدل `http://localhost:5000/api/contact`
-      const response = await fetch('/api/contact', {
+      // ✅ استخدام API URL من Environment Variables
+      const API_URL = import.meta.env.VITE_API_URL || '/api';
+      const response = await fetch(`${API_URL}/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,8 +139,8 @@ const Contact = () => {
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? 'Sending...' : 'Send Message'}
             </button>
-            {success && <p className="success-message">Thank you for your message! I will get back to you soon.</p>}
-            {error && <p className="error-message">Failed to send. Please try again or email me directly.</p>}
+            {success && <p className="success-message">✓ Thank you for your message! I will get back to you soon.</p>}
+            {error && <p className="error-message">✗ Failed to send. Please try again or email me directly.</p>}
           </form>
         </div>
       </div>

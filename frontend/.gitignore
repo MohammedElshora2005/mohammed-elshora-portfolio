@@ -1,3 +1,5 @@
+# Mohammed_Portfolio\frontend\.gitignore
+
 # مجلدات dependencies
 **/node_modules/
 node_modules/

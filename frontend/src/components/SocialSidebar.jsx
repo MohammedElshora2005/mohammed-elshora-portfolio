@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\components\SocialSidebar.jsx
+
 import React from 'react';
 import { FaWhatsapp, FaTelegram, FaFacebook, FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import './SocialSidebar.css';

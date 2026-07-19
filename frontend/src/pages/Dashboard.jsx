@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Dashboard.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
@@ -111,8 +113,9 @@ const Dashboard = () => {
   const [editing, setEditing] = useState(null);
   const [editForm, setEditForm] = useState({});
 
-  const ADMIN_USER = 'mohammed';
-  const ADMIN_PASS = 'elshora2026';
+  // ✅ استخدام Environment Variables للـ Login Credentials
+  const ADMIN_USER = import.meta.env.VITE_ADMIN_USER || process.env.ADMIN_USER || 'mohammed';
+  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASS || process.env.ADMIN_PASS || 'elshora2026';
 
   const handleLogin = (e) => {
     e.preventDefault();

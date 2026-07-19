@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\components\Navbar.jsx
+
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaBars, FaTimes, FaUserCog, FaMoon, FaSun } from 'react-icons/fa';

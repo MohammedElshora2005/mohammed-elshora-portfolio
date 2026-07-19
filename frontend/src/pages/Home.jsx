@@ -1,3 +1,5 @@
+// ohammed_Portfolio\frontend\src\pages\Home.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTelegram, FaProjectDiagram, FaFacebook } from 'react-icons/fa';

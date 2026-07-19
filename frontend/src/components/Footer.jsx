@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\components\Footer.jsx
+
 import React from 'react';
 import { FaGithub, FaLinkedin, FaEnvelope } from 'react-icons/fa';
 import './Footer.css';

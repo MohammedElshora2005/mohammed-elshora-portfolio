@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Projects.jsx
+
 import React, { useState, useEffect } from 'react';
 import { FaGithub, FaExternalLinkAlt, FaPlay, FaHeart, FaComment, FaStar } from 'react-icons/fa';
 import './Projects.css';

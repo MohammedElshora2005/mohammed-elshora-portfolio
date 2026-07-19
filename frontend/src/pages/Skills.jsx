@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Skills.jsx
+
 import React, { useState, useEffect } from 'react';
 import * as Icons from 'react-icons/fa';
 import * as SiIcons from 'react-icons/si';

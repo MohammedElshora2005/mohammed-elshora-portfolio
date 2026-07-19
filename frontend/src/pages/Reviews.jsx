@@ -1,3 +1,5 @@
+// Mohammed_Portfolio\frontend\src\pages\Reviews.jsx
+
 import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 import './Reviews.css';
