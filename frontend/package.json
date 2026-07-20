@@ -1,14 +1,14 @@
 {
-  "name": "my-portfolio",
+  "name": "mohammed-elshora-portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "node server.js"
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "lint": "cd frontend && npm run lint",
+    "preview": "cd frontend && npm run preview",
+    "server": "cd frontend && npm run server"
   },
   "dependencies": {
     "aos": "^2.3.4",
@@ -33,8 +33,5 @@
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.11.0",
     "vite": "^5.4.10"
-  },
-  "build": {
-    "outputDirectory": "frontend/dist"
   }
 }
