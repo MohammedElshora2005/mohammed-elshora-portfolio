@@ -6,10 +6,10 @@ import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTelegram, FaProjectDiag
 import { supabase } from '../supabase';
 import './Home.css';
 
+// ✅ استخدم الصورة من مجلد assets
+import defaultHero from '../assets/hero.png';
+
 const Home = () => {
-  // ✅ استخدم رابط مباشر للصورة بدل الملف المحلي
-  const defaultHero = 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=400&fit=crop&crop=face';
-  
   const [profileImage, setProfileImage] = useState(defaultHero);
   const [loading, setLoading] = useState(true);
   const [homeContent, setHomeContent] = useState({
@@ -49,7 +49,7 @@ const Home = () => {
       if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
       } else {
-        // لو مش base64، استخدم الصورة الافتراضية
+        // لو مش base64، استخدم الصورة الافتراضية من assets
         setProfileImage(defaultHero);
       }
 
