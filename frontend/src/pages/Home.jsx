@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTelegram, FaProjectDiagram, FaFacebook } from 'react-icons/fa';
 import { supabase } from '../supabase';
-import defaultHero from '../assets/hero.png';
 import './Home.css';
 
 const Home = () => {
+  // ✅ استخدم رابط مباشر للصورة بدل الملف المحلي
+  const defaultHero = 'https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&h=400&fit=crop&crop=face';
+  
   const [profileImage, setProfileImage] = useState(defaultHero);
   const [loading, setLoading] = useState(true);
   const [homeContent, setHomeContent] = useState({
@@ -28,7 +30,6 @@ const Home = () => {
       
       if (profileData && profileData.length > 0) {
         const info = profileData[0];
-        // You can use profile info here if needed
         console.log('Profile data loaded:', info);
       }
 
@@ -43,10 +44,13 @@ const Home = () => {
         }
       }
 
-      // Load profile image from localStorage
+      // Load profile image from localStorage (base64)
       const savedImage = localStorage.getItem('profileImage');
-      if (savedImage) {
+      if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
+      } else {
+        // لو مش base64، استخدم الصورة الافتراضية
+        setProfileImage(defaultHero);
       }
 
     } catch (error) {
@@ -59,7 +63,7 @@ const Home = () => {
         } catch (e) {}
       }
       const savedImage = localStorage.getItem('profileImage');
-      if (savedImage) {
+      if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
       }
     } finally {
@@ -99,7 +103,7 @@ const Home = () => {
   useEffect(() => {
     const handleStorageChange = () => {
       const savedImage = localStorage.getItem('profileImage');
-      if (savedImage) {
+      if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
       }
       const savedContent = localStorage.getItem('homeContent');
