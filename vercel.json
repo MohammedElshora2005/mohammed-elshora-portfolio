@@ -6,7 +6,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     }
   ],
   "builds": [
@@ -14,7 +14,7 @@
       "src": "frontend/**",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "frontend/dist"
+        "distDir": "dist"
       }
     },
     {
