@@ -71,30 +71,28 @@ const About = () => {
 
   // ====== Listen for real-time changes from Supabase ======
   useEffect(() => {
-    // Subscribe to changes on profile_info table
     const subscription = supabase
       .channel('profile_info_changes')
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'profile_info'
         },
         () => {
           console.log('🔄 Profile info changed, reloading...');
-          loadProfile(); // Reload data when any change occurs
+          loadProfile();
         }
       )
       .subscribe();
 
-    // Cleanup subscription on unmount
     return () => {
       subscription.unsubscribe();
     };
-  }, []); // Empty dependency array - only run once
+  }, []);
 
-  // ====== Also listen for localStorage changes (for backward compatibility) ======
+  // ====== Listen for localStorage changes ======
   useEffect(() => {
     const handleStorageChange = () => {
       const savedInfo = localStorage.getItem('profileInfo');
