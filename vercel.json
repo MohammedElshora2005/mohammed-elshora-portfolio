@@ -2,23 +2,23 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/frontend/api/$1"
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
-      "destination": "/frontend/index.html"
+      "destination": "/index.html"
     }
   ],
   "builds": [
     {
-      "src": "frontend/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
         "distDir": "dist"
       }
     },
     {
-      "src": "frontend/api/**",
+      "src": "api/**",
       "use": "@vercel/node"
     }
   ]
