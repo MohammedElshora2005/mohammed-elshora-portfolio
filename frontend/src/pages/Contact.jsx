@@ -27,9 +27,8 @@ const Contact = () => {
     setError(false);
     
     try {
-      // ✅ استخدام API URL من Environment Variables
-      const API_URL = import.meta.env.VITE_API_URL || '/api';
-      const response = await fetch(`${API_URL}/send-email`, {
+      // ✅ استخدام المسار النسبي المباشر (Vercel هيتعامل معاه)
+      const response = await fetch(`/api/send-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
