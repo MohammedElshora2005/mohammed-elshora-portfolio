@@ -1,4 +1,4 @@
-// Mohammed_Portfolio\frontend\api/chat.js
+// Mohammed_Portfolio\api\chat.js
 
 import Groq from 'groq-sdk';
 
