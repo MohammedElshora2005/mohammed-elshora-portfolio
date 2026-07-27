@@ -217,22 +217,36 @@ const Dashboard = () => {
     setReviews(newReviews);
   };
 
+  // ✅ تم التعديل هنا - دالة حفظ الـ Profile
   const saveProfileInfo = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    
     try {
+      // Delete old data
       await supabase.from('profile_info').delete().neq('id', 0);
+      
+      // Insert new data with about_text
       const { error } = await supabase.from('profile_info').insert([{
         email: profileInfo.email,
         phone: profileInfo.phone,
         location: profileInfo.location,
         experience: profileInfo.experience,
-        about_text: aboutText
+        about_text: aboutText  // ✅ دي أهم حاجة!
       }]);
+      
       if (error) throw error;
-      alert('✅ Profile information saved successfully!');
+      
+      alert('✅ Profile information saved to Supabase successfully!');
+      
+      // Reload data to update everything
+      await loadAllData();
+      
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('❌ Failed to save profile');
+      alert('❌ Failed to save profile to Supabase: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -581,8 +595,8 @@ const Dashboard = () => {
                   onChange={(e) => setProfileInfo({...profileInfo, experience: e.target.value})}
                   placeholder="Experience (e.g., 3+ Years)"
                 />
-                <button type="submit" className="btn-primary">
-                  <FaSave /> Save Profile Info
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  <FaSave /> {loading ? 'Saving...' : 'Save Profile Info'}
                 </button>
               </form>
             </div>
@@ -605,6 +619,7 @@ const Dashboard = () => {
                   <div className="edit-actions">
                     <button onClick={async () => {
                       setAboutText(editForm.text);
+                      // ✅ استخدم دالة saveProfileInfo المعدلة
                       await saveProfileInfo({ preventDefault: () => {} });
                       setEditing(null);
                     }} className="btn-primary">
