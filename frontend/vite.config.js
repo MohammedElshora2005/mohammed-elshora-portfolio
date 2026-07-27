@@ -11,7 +11,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://your-project.vercel.app',  // ✅ غير ده لرابط Vercel بتاعك
         changeOrigin: true,
         secure: false,
       }
