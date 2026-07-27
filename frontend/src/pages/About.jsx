@@ -19,7 +19,6 @@ const About = () => {
     try {
       console.log('🔄 Loading profile from Supabase...');
       
-      // Load profile info
       const { data: profileData, error: profileError } = await supabase
         .from('profile_info')
         .select('*')
@@ -44,7 +43,6 @@ const About = () => {
         console.log('✅ About text set to:', info.about_text);
       } else {
         console.log('⚠️ No profile data found, using defaults');
-        // بيانات افتراضية
         setProfileInfo({
           email: 'muhammedhosni70@gmail.com',
           phone: '01020063819',
@@ -55,7 +53,6 @@ const About = () => {
       }
     } catch (error) {
       console.error('❌ Error loading profile:', error);
-      // Fallback to localStorage
       const savedAbout = localStorage.getItem('aboutText');
       if (savedAbout) {
         setAboutText(savedAbout);
@@ -64,18 +61,23 @@ const About = () => {
       if (savedInfo) {
         try {
           setProfileInfo(JSON.parse(savedInfo));
-        } catch (e) {
-          // keep defaults
-        }
+        } catch (e) {}
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // ====== Load data on mount ======
+  // ====== Load data on mount and refresh every 3 seconds ======
   useEffect(() => {
     loadProfile();
+    
+    // ✅ Force refresh كل 3 ثواني عشان يضمن إن البيانات بتتحدث
+    const interval = setInterval(() => {
+      loadProfile();
+    }, 3000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // ====== Listen for real-time changes from Supabase ======
@@ -91,7 +93,7 @@ const About = () => {
         },
         (payload) => {
           console.log('🔄 Profile info changed in Supabase:', payload);
-          loadProfile(); // ✅ أعيد تحميل البيانات فوراً
+          loadProfile();
         }
       )
       .subscribe();
@@ -99,25 +101,6 @@ const About = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-
-  // ====== Listen for localStorage changes ======
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedInfo = localStorage.getItem('profileInfo');
-      if (savedInfo) {
-        try {
-          setProfileInfo(JSON.parse(savedInfo));
-        } catch (e) {}
-      }
-      const savedAbout = localStorage.getItem('aboutText');
-      if (savedAbout) {
-        setAboutText(savedAbout);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   if (loading) {
