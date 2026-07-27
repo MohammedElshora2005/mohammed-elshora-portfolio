@@ -17,13 +17,20 @@ const About = () => {
   // ====== Load profile info and about text from Supabase ======
   const loadProfile = async () => {
     try {
+      console.log('🔄 Loading profile from Supabase...');
+      
       // Load profile info
       const { data: profileData, error: profileError } = await supabase
         .from('profile_info')
         .select('*')
         .limit(1);
       
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('❌ Supabase error:', profileError);
+        throw profileError;
+      }
+      
+      console.log('📦 Profile data received:', profileData);
       
       if (profileData && profileData.length > 0) {
         const info = profileData[0];
@@ -34,7 +41,9 @@ const About = () => {
           experience: info.experience || '3+ Years'
         });
         setAboutText(info.about_text || "I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
+        console.log('✅ About text set to:', info.about_text);
       } else {
+        console.log('⚠️ No profile data found, using defaults');
         // بيانات افتراضية
         setProfileInfo({
           email: 'muhammedhosni70@gmail.com',
@@ -45,7 +54,7 @@ const About = () => {
         setAboutText("I'm Mohammed Elshora, a passionate Full Stack Developer with a strong foundation in modern web technologies. With over 3 years of experience, I specialize in building responsive, performant, and scalable web applications.");
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('❌ Error loading profile:', error);
       // Fallback to localStorage
       const savedAbout = localStorage.getItem('aboutText');
       if (savedAbout) {
@@ -80,9 +89,9 @@ const About = () => {
           schema: 'public',
           table: 'profile_info'
         },
-        () => {
-          console.log('🔄 Profile info changed, reloading...');
-          loadProfile();
+        (payload) => {
+          console.log('🔄 Profile info changed in Supabase:', payload);
+          loadProfile(); // ✅ أعيد تحميل البيانات فوراً
         }
       )
       .subscribe();
