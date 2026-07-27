@@ -217,34 +217,43 @@ const Dashboard = () => {
     setReviews(newReviews);
   };
 
-  // ✅ تم التعديل هنا - دالة حفظ الـ Profile
+  // ✅ دالة حفظ الـ Profile المعدلة (المشكلة كانت هنا)
   const saveProfileInfo = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      // Delete old data
-      await supabase.from('profile_info').delete().neq('id', 0);
+      console.log('🔄 Saving profile info...');
+      console.log('aboutText:', aboutText);
+      console.log('profileInfo:', profileInfo);
       
-      // Insert new data with about_text
-      const { error } = await supabase.from('profile_info').insert([{
-        email: profileInfo.email,
-        phone: profileInfo.phone,
-        location: profileInfo.location,
-        experience: profileInfo.experience,
-        about_text: aboutText  // ✅ دي أهم حاجة!
-      }]);
+      // ✅ استخدم upsert مع id ثابت
+      const { data, error } = await supabase
+        .from('profile_info')
+        .upsert({
+          id: 1,
+          email: profileInfo.email,
+          phone: profileInfo.phone,
+          location: profileInfo.location,
+          experience: profileInfo.experience,
+          about_text: aboutText
+        })
+        .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Supabase error:', error);
+        throw error;
+      }
       
+      console.log('✅ Saved successfully:', data);
       alert('✅ Profile information saved to Supabase successfully!');
       
-      // Reload data to update everything
+      // ✅ أعيد تحميل البيانات عشان تظهر فوراً
       await loadAllData();
       
     } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('❌ Failed to save profile to Supabase: ' + error.message);
+      console.error('❌ Error saving profile:', error);
+      alert('❌ Failed to save profile: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -619,7 +628,6 @@ const Dashboard = () => {
                   <div className="edit-actions">
                     <button onClick={async () => {
                       setAboutText(editForm.text);
-                      // ✅ استخدم دالة saveProfileInfo المعدلة
                       await saveProfileInfo({ preventDefault: () => {} });
                       setEditing(null);
                     }} className="btn-primary">
