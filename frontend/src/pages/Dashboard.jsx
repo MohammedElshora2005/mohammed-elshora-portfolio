@@ -227,11 +227,22 @@ const Dashboard = () => {
       console.log('aboutText:', aboutText);
       console.log('profileInfo:', profileInfo);
       
-      // ✅ استخدم upsert مع id ثابت
+      // ✅ جيب الـ id الحقيقي من الجدول
+      const { data: existing } = await supabase
+        .from('profile_info')
+        .select('id')
+        .limit(1);
+      
+      let profileId = 1;
+      if (existing && existing.length > 0) {
+        profileId = existing[0].id;
+      }
+      
+      // ✅ استخدم الـ id الصحيح
       const { data, error } = await supabase
         .from('profile_info')
         .upsert({
-          id: 1,
+          id: profileId,
           email: profileInfo.email,
           phone: profileInfo.phone,
           location: profileInfo.location,
