@@ -367,7 +367,17 @@ const Projects = () => {
             </div>
             <div className="modal-body">
               <h2>{selectedProject.title}</h2>
-              <p className="modal-description">{selectedProject.long_description || selectedProject.description}</p>
+              {/* ✅ عرض Long Description مع الحفاظ على التنسيق */}
+              <div 
+                className="modal-description" 
+                style={{ 
+                  whiteSpace: 'pre-wrap', 
+                  wordWrap: 'break-word',
+                  lineHeight: '1.8'
+                }}
+              >
+                {selectedProject.long_description || selectedProject.description}
+              </div>
               <div className="modal-tech">
                 <h4>Technologies Used:</h4>
                 <div className="tech-stack">
