@@ -20,28 +20,36 @@ const Home = () => {
   // ====== Load home content and profile image from Supabase ======
   const loadHomeData = async () => {
     try {
+      console.log('🔄 Loading home data from Supabase...');
+      
+      // ✅ Load home content from Supabase
+      const { data: homeData, error: homeError } = await supabase
+        .from('home_content')
+        .select('*')
+        .limit(1);
+      
+      if (homeError) {
+        console.error('❌ Home content error:', homeError);
+      } else if (homeData && homeData.length > 0) {
+        console.log('📦 Home data received:', homeData);
+        setHomeContent({
+          subtitle: homeData[0].subtitle || 'Full Stack Developer',
+          description: homeData[0].description || "I build exceptional digital experiences with React, Node.js, and modern web technologies."
+        });
+      } else {
+        console.log('⚠️ No home content found, using defaults');
+      }
+
       // Load profile info
       const { data: profileData, error: profileError } = await supabase
         .from('profile_info')
         .select('*')
         .limit(1);
       
-      if (profileError) throw profileError;
-      
-      if (profileData && profileData.length > 0) {
-        const info = profileData[0];
-        console.log('Profile data loaded:', info);
-      }
-
-      // Load home content from localStorage
-      const savedContent = localStorage.getItem('homeContent');
-      if (savedContent) {
-        try {
-          const parsed = JSON.parse(savedContent);
-          setHomeContent(parsed);
-        } catch (e) {
-          console.error('Error parsing home content:', e);
-        }
+      if (profileError) {
+        console.error('❌ Profile error:', profileError);
+      } else if (profileData && profileData.length > 0) {
+        console.log('📦 Profile data loaded:', profileData[0]);
       }
 
       // Load profile image from localStorage (base64)
@@ -49,23 +57,11 @@ const Home = () => {
       if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
       } else {
-        // لو مش base64، استخدم الصورة الافتراضية من assets
         setProfileImage(defaultHero);
       }
 
     } catch (error) {
-      console.error('Error loading home data:', error);
-      // Fallback to localStorage
-      const savedContent = localStorage.getItem('homeContent');
-      if (savedContent) {
-        try {
-          setHomeContent(JSON.parse(savedContent));
-        } catch (e) {}
-      }
-      const savedImage = localStorage.getItem('profileImage');
-      if (savedImage && savedImage.startsWith('data:image')) {
-        setProfileImage(savedImage);
-      }
+      console.error('❌ Error loading home data:', error);
     } finally {
       setLoading(false);
     }
@@ -80,6 +76,18 @@ const Home = () => {
   useEffect(() => {
     const subscription = supabase
       .channel('home_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'home_content'
+        },
+        (payload) => {
+          console.log('🔄 Home content changed in Supabase:', payload);
+          loadHomeData();
+        }
+      )
       .on(
         'postgres_changes',
         {
@@ -105,12 +113,6 @@ const Home = () => {
       const savedImage = localStorage.getItem('profileImage');
       if (savedImage && savedImage.startsWith('data:image')) {
         setProfileImage(savedImage);
-      }
-      const savedContent = localStorage.getItem('homeContent');
-      if (savedContent) {
-        try {
-          setHomeContent(JSON.parse(savedContent));
-        } catch (e) {}
       }
     };
 
