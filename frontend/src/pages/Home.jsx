@@ -40,23 +40,19 @@ const Home = () => {
         console.log('⚠️ No home content found, using defaults');
       }
 
-      // Load profile info
+      // ✅ Load profile info (including image) from Supabase
       const { data: profileData, error: profileError } = await supabase
         .from('profile_info')
-        .select('*')
+        .select('profile_image')
         .limit(1);
       
       if (profileError) {
         console.error('❌ Profile error:', profileError);
-      } else if (profileData && profileData.length > 0) {
-        console.log('📦 Profile data loaded:', profileData[0]);
-      }
-
-      // Load profile image from localStorage (base64)
-      const savedImage = localStorage.getItem('profileImage');
-      if (savedImage && savedImage.startsWith('data:image')) {
-        setProfileImage(savedImage);
+      } else if (profileData && profileData.length > 0 && profileData[0].profile_image) {
+        console.log('📦 Profile image loaded from Supabase');
+        setProfileImage(profileData[0].profile_image);
       } else {
+        console.log('⚠️ No profile image found, using default');
         setProfileImage(defaultHero);
       }
 
@@ -105,19 +101,6 @@ const Home = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
-
-  // ====== Listen for changes in localStorage ======
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedImage = localStorage.getItem('profileImage');
-      if (savedImage && savedImage.startsWith('data:image')) {
-        setProfileImage(savedImage);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   if (loading) {
