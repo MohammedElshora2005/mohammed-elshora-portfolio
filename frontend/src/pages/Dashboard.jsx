@@ -688,6 +688,7 @@ const Dashboard = () => {
                     onChange={(e) => setEditForm({...editForm, text: e.target.value})}
                     rows="6"
                     placeholder="About Me Text"
+                    style={{ minHeight: '150px', resize: 'vertical' }}
                   />
                   <div className="edit-actions">
                     <button onClick={async () => {
@@ -793,10 +794,12 @@ const Dashboard = () => {
                           onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                           placeholder="Description"
                         />
-                        <input
+                        <textarea
                           value={editForm.longDescription || ''}
                           onChange={(e) => setEditForm({...editForm, longDescription: e.target.value})}
                           placeholder="Long Description"
+                          rows="6"
+                          style={{ minHeight: '120px', maxHeight: '400px', resize: 'vertical' }}
                         />
                         <input
                           value={editForm.github || ''}
