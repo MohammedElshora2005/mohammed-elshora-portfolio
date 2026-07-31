@@ -225,39 +225,49 @@ const Dashboard = () => {
     setReviews(newReviews);
   };
 
+  // ✅ دالة حفظ الـ About Me (تم التعديل)
   const saveProfileInfo = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
+      console.log('🔄 Saving profile info...');
+      console.log('📝 aboutText:', aboutText);
+      
+      // ✅ جيب الـ id الحقيقي
       const { data: existing } = await supabase
         .from('profile_info')
         .select('id')
         .limit(1);
       
-      let profileId = 1;
-      if (existing && existing.length > 0) {
-        profileId = existing[0].id;
-      }
+      const profileId = existing?.[0]?.id || 1;
+      console.log('📌 profileId:', profileId);
       
+      // ✅ استخدم UPDATE بدل upsert
       const { error } = await supabase
         .from('profile_info')
-        .upsert({
-          id: profileId,
+        .update({
           email: profileInfo.email,
           phone: profileInfo.phone,
           location: profileInfo.location,
           experience: profileInfo.experience,
           about_text: aboutText
-        });
+        })
+        .eq('id', profileId);
       
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Update Error:', error);
+        throw error;
+      }
       
+      console.log('✅ Saved successfully!');
       alert('✅ Profile information saved successfully!');
+      
+      // ✅ أعيد تحميل البيانات
       await loadAllData();
       
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error('❌ Error saving profile:', error);
       alert('❌ Failed to save profile: ' + error.message);
     } finally {
       setLoading(false);
@@ -308,17 +318,14 @@ const Dashboard = () => {
           .select('id')
           .limit(1);
         
-        let profileId = 1;
-        if (existing && existing.length > 0) {
-          profileId = existing[0].id;
-        }
+        const profileId = existing?.[0]?.id || 1;
         
         const { error } = await supabase
           .from('profile_info')
-          .upsert({
-            id: profileId,
+          .update({
             profile_image: imageData
-          });
+          })
+          .eq('id', profileId);
         
         if (error) throw error;
         
