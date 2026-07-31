@@ -444,10 +444,13 @@
   color: #ffffff;
 }
 
+/* ✅ تعديل الـ modal-description عشان يحافظ على التنسيق */
 .modal-description {
   color: #b0b0b0;
   line-height: 1.8;
   margin-bottom: 20px;
+  white-space: pre-wrap;    /* ✅ بيحافظ على الأسطر والفواصل */
+  word-wrap: break-word;    /* ✅ بيكسر الكلمات الطويلة */
 }
 
 .modal-tech h4 {
