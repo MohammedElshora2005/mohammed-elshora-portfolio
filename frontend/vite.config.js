@@ -1,5 +1,3 @@
-// Mohammed_Portfolio\frontend\vite.config.js
-
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -11,7 +9,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'https://your-project.vercel.app',  // ✅ غير ده لرابط Vercel بتاعك
+        target: 'http://localhost:5000',  // ✅ غيرها لكده عشان تشتغل محلياً
         changeOrigin: true,
         secure: false,
       }
