@@ -108,6 +108,15 @@ const Dashboard = () => {
         }
       }
 
+      // Load home content from Supabase
+      const { data: homeData } = await supabase.from('home_content').select('*').limit(1);
+      if (homeData && homeData.length > 0) {
+        setHomeContent({
+          subtitle: homeData[0].subtitle || 'Full Stack Developer',
+          description: homeData[0].description || "I build exceptional digital experiences with React, Node.js, and modern web technologies."
+        });
+      }
+
       // Load interactions
       const { data: interactionsData } = await supabase.from('interactions').select('*');
       if (interactionsData) {
@@ -134,7 +143,7 @@ const Dashboard = () => {
         setCertInteractions(certInter);
       }
 
-      // Load profile image from localStorage (keep as is for now)
+      // Load profile image from localStorage
       const savedImage = localStorage.getItem('profileImage');
       if (savedImage) setProfileImage(savedImage);
 
@@ -217,17 +226,11 @@ const Dashboard = () => {
     setReviews(newReviews);
   };
 
-  // ✅ دالة حفظ الـ Profile المعدلة (المشكلة كانت هنا)
   const saveProfileInfo = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      console.log('🔄 Saving profile info...');
-      console.log('aboutText:', aboutText);
-      console.log('profileInfo:', profileInfo);
-      
-      // ✅ جيب الـ id الحقيقي من الجدول
       const { data: existing } = await supabase
         .from('profile_info')
         .select('id')
@@ -238,8 +241,7 @@ const Dashboard = () => {
         profileId = existing[0].id;
       }
       
-      // ✅ استخدم الـ id الصحيح
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('profile_info')
         .upsert({
           id: profileId,
@@ -248,36 +250,46 @@ const Dashboard = () => {
           location: profileInfo.location,
           experience: profileInfo.experience,
           about_text: aboutText
-        })
-        .select();
+        });
       
-      if (error) {
-        console.error('❌ Supabase error:', error);
-        throw error;
-      }
+      if (error) throw error;
       
-      console.log('✅ Saved successfully:', data);
-      alert('✅ Profile information saved to Supabase successfully!');
-      
-      // ✅ أعيد تحميل البيانات عشان تظهر فوراً
+      alert('✅ Profile information saved successfully!');
       await loadAllData();
       
     } catch (error) {
-      console.error('❌ Error saving profile:', error);
+      console.error('Error saving profile:', error);
       alert('❌ Failed to save profile: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // ✅ دالة حفظ الـ Home Content في Supabase
   const saveHomeContent = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    
     try {
-      localStorage.setItem('homeContent', JSON.stringify(homeContent));
-      alert('✅ Home page content saved successfully!');
+      const { error } = await supabase
+        .from('home_content')
+        .upsert({
+          id: 1,
+          subtitle: homeContent.subtitle,
+          description: homeContent.description,
+          updated_at: new Date()
+        });
+      
+      if (error) throw error;
+      
+      alert('✅ Home content saved to Supabase successfully!');
+      await loadAllData();
+      
     } catch (error) {
       console.error('Error saving home content:', error);
-      alert('❌ Failed to save home content');
+      alert('❌ Failed to save home content: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -305,6 +317,18 @@ const Dashboard = () => {
         },
         () => {
           console.log('🔄 Profile info changed, reloading...');
+          loadAllData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'home_content'
+        },
+        () => {
+          console.log('🔄 Home content changed, reloading...');
           loadAllData();
         }
       )
@@ -684,8 +708,8 @@ const Dashboard = () => {
                   placeholder="Description"
                   rows="4"
                 />
-                <button type="submit" className="btn-primary">
-                  <FaSave /> Save Home Content
+                <button type="submit" className="btn-primary" disabled={loading}>
+                  <FaSave /> {loading ? 'Saving...' : 'Save Home Content'}
                 </button>
               </form>
             </div>
