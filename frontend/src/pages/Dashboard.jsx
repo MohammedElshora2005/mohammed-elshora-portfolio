@@ -106,6 +106,9 @@ const Dashboard = () => {
         if (profileData[0].about_text) {
           setAboutText(profileData[0].about_text);
         }
+        if (profileData[0].profile_image) {
+          setProfileImage(profileData[0].profile_image);
+        }
       }
 
       // Load home content from Supabase
@@ -142,10 +145,6 @@ const Dashboard = () => {
         setProjectInteractions(projectInter);
         setCertInteractions(certInter);
       }
-
-      // Load profile image from localStorage
-      const savedImage = localStorage.getItem('profileImage');
-      if (savedImage) setProfileImage(savedImage);
 
     } catch (error) {
       console.error('Error loading data:', error);
@@ -265,7 +264,6 @@ const Dashboard = () => {
     }
   };
 
-  // ✅ دالة حفظ الـ Home Content في Supabase
   const saveHomeContent = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -288,6 +286,53 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error saving home content:', error);
       alert('❌ Failed to save home content: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ دالة حفظ الصورة في Supabase
+  const changeProfileImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setLoading(true);
+    
+    try {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const imageData = event.target.result;
+        
+        // جيب الـ id الحقيقي
+        const { data: existing } = await supabase
+          .from('profile_info')
+          .select('id')
+          .limit(1);
+        
+        let profileId = 1;
+        if (existing && existing.length > 0) {
+          profileId = existing[0].id;
+        }
+        
+        // احفظ الصورة في Supabase
+        const { error } = await supabase
+          .from('profile_info')
+          .upsert({
+            id: profileId,
+            profile_image: imageData
+          });
+        
+        if (error) throw error;
+        
+        setProfileImage(imageData);
+        alert('✅ Profile image saved successfully!');
+        await loadAllData();
+      };
+      reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error('Error saving image:', error);
+      alert('❌ Failed to save image: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -477,20 +522,6 @@ const Dashboard = () => {
     if (window.confirm('Delete this review permanently?')) {
       const newReviews = reviews.filter(r => r.id !== id);
       await saveReviews(newReviews);
-    }
-  };
-
-  // ====== Profile Image ======
-  const changeProfileImage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imageData = event.target.result;
-        localStorage.setItem('profileImage', imageData);
-        setProfileImage(imageData);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
