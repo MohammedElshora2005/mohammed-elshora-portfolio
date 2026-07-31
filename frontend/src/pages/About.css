@@ -16,8 +16,11 @@
   color: #b0b0b0;
 }
 
+/* ✅ إضافة تنسيق للنص الطويل مع الحفاظ على الأسطر والفواصل */
 .about-text p {
   margin-bottom: 25px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
 .about-text strong {
@@ -46,6 +49,24 @@
   color: #ffffff;
   font-weight: 500;
   font-size: 1.05rem;
+}
+
+/* ====== Light Mode ====== */
+body.light-mode .about-text {
+  color: #4a4a4a;
+}
+
+body.light-mode .about-info {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .about-info h4 {
+  color: #0066ff;
+}
+
+body.light-mode .about-info p {
+  color: #1a1a2e;
 }
 
 @media (max-width: 768px) {
