@@ -303,7 +303,6 @@ const Dashboard = () => {
       reader.onload = async (event) => {
         const imageData = event.target.result;
         
-        // جيب الـ id الحقيقي
         const { data: existing } = await supabase
           .from('profile_info')
           .select('id')
@@ -314,7 +313,6 @@ const Dashboard = () => {
           profileId = existing[0].id;
         }
         
-        // احفظ الصورة في Supabase
         const { error } = await supabase
           .from('profile_info')
           .upsert({
