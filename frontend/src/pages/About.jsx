@@ -72,7 +72,6 @@ const About = () => {
   useEffect(() => {
     loadProfile();
     
-    // ✅ Force refresh كل 3 ثواني عشان يضمن إن البيانات بتتحدث
     const interval = setInterval(() => {
       loadProfile();
     }, 3000);
@@ -122,7 +121,16 @@ const About = () => {
         <h2 className="section-title" data-aos="fade-up">About Me</h2>
         <div className="about-content" data-aos="fade-up" data-aos-delay="100">
           <div className="about-text">
-            <p>{aboutText}</p>
+            {/* ✅ عرض النص مع الحفاظ على الفواصل والأسطر */}
+            <div style={{ 
+              whiteSpace: 'pre-wrap', 
+              wordWrap: 'break-word',
+              lineHeight: '1.8',
+              fontSize: '1.05rem',
+              color: '#b0b0b0'
+            }}>
+              {aboutText}
+            </div>
             <div className="about-info">
               <div>
                 <h4>Email</h4>
