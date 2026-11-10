@@ -31,7 +31,6 @@ const Certificates = () => {
       if (certsData && certsData.length > 0) {
         setCertificates(certsData);
       } else {
-        // بيانات افتراضية
         const defaultCerts = [
           {
             id: 1,
@@ -142,7 +141,6 @@ const Certificates = () => {
     };
   }, []);
 
-  // ====== Handle Like ======
   const handleLike = async (certId) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[certId]) {
@@ -172,7 +170,6 @@ const Certificates = () => {
     }
   };
 
-  // ====== Handle Add Comment ======
   const handleAddComment = async (certId) => {
     if (!currentUser.trim()) {
       alert('Please enter your name first!');
@@ -215,7 +212,6 @@ const Certificates = () => {
     }
   };
 
-  // ====== Handle Rating ======
   const handleRating = async (certId, rating) => {
     const newInteractions = { ...interactions };
     if (!newInteractions[certId]) {
@@ -268,7 +264,7 @@ const Certificates = () => {
           
           {certificates.length === 0 ? (
             <div className="no-certs">
-              <p>🎓 No certificates added yet.</p>
+              <p> No certificates added yet.</p>
               <p style={{ color: '#00d4ff', fontSize: '0.9rem', marginTop: '10px' }}>
                 Add your certificates from the Dashboard!
               </p>
@@ -298,7 +294,7 @@ const Certificates = () => {
                     <p className="cert-issuer">{cert.issuer}</p>
                     <p className="cert-description">{cert.description}</p>
                     <div className="cert-date">
-                      <span>📅 {cert.date}</span>
+                      <span> {cert.date}</span>
                     </div>
                     <div className="cert-links">
                       <a href={cert.link || '#'} target="_blank" rel="noopener noreferrer">
@@ -404,7 +400,7 @@ const Certificates = () => {
               <h2>{selectedCert.title}</h2>
               <p className="modal-issuer">{selectedCert.issuer}</p>
               <p className="modal-description">{selectedCert.description}</p>
-              <p className="modal-date">📅 {selectedCert.date}</p>
+              <p className="modal-date"> {selectedCert.date}</p>
               <div className="modal-links">
                 <a href={selectedCert.link || '#'} target="_blank" rel="noopener noreferrer" className="btn-primary">
                   <FaExternalLinkAlt /> Verify Certificate
