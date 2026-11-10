@@ -23,7 +23,6 @@ const Skills = () => {
       if (data && data.length > 0) {
         setSkills(data);
       } else {
-        // لو مفيش بيانات، استخدم البيانات الافتراضية
         const defaultSkills = [
           { id: 1, name: 'HTML5', icon: 'FaHtml5', color: '#E44D26', level: 95 },
           { id: 2, name: 'CSS3', icon: 'FaCss3Alt', color: '#1572B6', level: 90 },
@@ -48,7 +47,6 @@ const Skills = () => {
       }
     } catch (error) {
       console.error('Error loading skills:', error);
-      // في حالة الخطأ، استخدم localStorage
       const saved = localStorage.getItem('skills');
       if (saved) {
         try {
@@ -62,12 +60,12 @@ const Skills = () => {
     }
   };
 
-  // ====== Load data on mount ======
+  //  Load data on mount 
   useEffect(() => {
     loadSkills();
   }, []);
 
-  // ====== Listen for real-time changes from Supabase ======
+  //  Listen for real-time changes from Supabase 
   useEffect(() => {
     const subscription = supabase
       .channel('skills_changes')
@@ -79,7 +77,7 @@ const Skills = () => {
           table: 'skills'
         },
         () => {
-          console.log('🔄 Skills changed, reloading...');
+          console.log(' Skills changed, reloading...');
           loadSkills();
         }
       )
@@ -107,7 +105,7 @@ const Skills = () => {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // ====== Get icon from library ======
+  //  Get icon from library 
   const getIcon = (iconName) => {
     if (!iconName) return <Icons.FaReact />;
     
@@ -144,7 +142,7 @@ const Skills = () => {
         
         {skills.length === 0 ? (
           <div className="no-skills">
-            <p>🚀 No skills added yet.</p>
+            <p> No skills added yet.</p>
             <p style={{ color: '#00d4ff', fontSize: '0.9rem', marginTop: '10px' }}>
               Add your skills from the Dashboard!
             </p>
