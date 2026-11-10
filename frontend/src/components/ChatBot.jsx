@@ -33,7 +33,6 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      // ✅ استخدام المسار النسبي (Vercel هيتعامل معاه)
       const response = await fetch(`/api/chat`, {
         method: 'POST',
         headers: {
