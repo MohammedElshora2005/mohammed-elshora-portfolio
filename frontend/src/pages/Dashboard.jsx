@@ -225,25 +225,22 @@ const Dashboard = () => {
     setReviews(newReviews);
   };
 
-  // ✅ دالة حفظ الـ About Me (تم التعديل)
   const saveProfileInfo = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
-      console.log('🔄 Saving profile info...');
-      console.log('📝 aboutText:', aboutText);
+      console.log(' Saving profile info...');
+      console.log(' aboutText:', aboutText);
       
-      // ✅ جيب الـ id الحقيقي
       const { data: existing } = await supabase
         .from('profile_info')
         .select('id')
         .limit(1);
       
       const profileId = existing?.[0]?.id || 1;
-      console.log('📌 profileId:', profileId);
+      console.log(' profileId:', profileId);
       
-      // ✅ استخدم UPDATE بدل upsert
       const { error } = await supabase
         .from('profile_info')
         .update({
@@ -256,19 +253,18 @@ const Dashboard = () => {
         .eq('id', profileId);
       
       if (error) {
-        console.error('❌ Update Error:', error);
+        console.error(' Update Error:', error);
         throw error;
       }
       
-      console.log('✅ Saved successfully!');
-      alert('✅ Profile information saved successfully!');
+      console.log(' Saved successfully!');
+      alert(' Profile information saved successfully!');
       
-      // ✅ أعيد تحميل البيانات
       await loadAllData();
       
     } catch (error) {
-      console.error('❌ Error saving profile:', error);
-      alert('❌ Failed to save profile: ' + error.message);
+      console.error(' Error saving profile:', error);
+      alert(' Failed to save profile: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -290,18 +286,17 @@ const Dashboard = () => {
       
       if (error) throw error;
       
-      alert('✅ Home content saved to Supabase successfully!');
+      alert(' Home content saved to Supabase successfully!');
       await loadAllData();
       
     } catch (error) {
       console.error('Error saving home content:', error);
-      alert('❌ Failed to save home content: ' + error.message);
+      alert(' Failed to save home content: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ دالة حفظ الصورة في Supabase
   const changeProfileImage = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -330,14 +325,14 @@ const Dashboard = () => {
         if (error) throw error;
         
         setProfileImage(imageData);
-        alert('✅ Profile image saved successfully!');
+        alert(' Profile image saved successfully!');
         await loadAllData();
       };
       reader.readAsDataURL(file);
       
     } catch (error) {
       console.error('Error saving image:', error);
-      alert('❌ Failed to save image: ' + error.message);
+      alert(' Failed to save image: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -366,7 +361,7 @@ const Dashboard = () => {
           table: 'profile_info'
         },
         () => {
-          console.log('🔄 Profile info changed, reloading...');
+          console.log(' Profile info changed, reloading...');
           loadAllData();
         }
       )
@@ -378,7 +373,7 @@ const Dashboard = () => {
           table: 'home_content'
         },
         () => {
-          console.log('🔄 Home content changed, reloading...');
+          console.log(' Home content changed, reloading...');
           loadAllData();
         }
       )
@@ -390,7 +385,7 @@ const Dashboard = () => {
           table: 'projects'
         },
         () => {
-          console.log('🔄 Projects changed, reloading...');
+          console.log(' Projects changed, reloading...');
           loadAllData();
         }
       )
@@ -402,7 +397,7 @@ const Dashboard = () => {
           table: 'skills'
         },
         () => {
-          console.log('🔄 Skills changed, reloading...');
+          console.log(' Skills changed, reloading...');
           loadAllData();
         }
       )
@@ -414,7 +409,7 @@ const Dashboard = () => {
           table: 'certificates'
         },
         () => {
-          console.log('🔄 Certificates changed, reloading...');
+          console.log(' Certificates changed, reloading...');
           loadAllData();
         }
       )
@@ -426,7 +421,7 @@ const Dashboard = () => {
           table: 'reviews'
         },
         () => {
-          console.log('🔄 Reviews changed, reloading...');
+          console.log(' Reviews changed, reloading...');
           loadAllData();
         }
       )
