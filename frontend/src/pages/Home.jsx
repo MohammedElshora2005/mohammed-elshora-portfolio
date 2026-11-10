@@ -6,7 +6,6 @@ import { FaGithub, FaLinkedin, FaEnvelope, FaWhatsapp, FaTelegram, FaProjectDiag
 import { supabase } from '../supabase';
 import './Home.css';
 
-// ✅ استخدم الصورة من مجلد assets
 import defaultHero from '../assets/hero.png';
 
 const Home = () => {
@@ -20,55 +19,54 @@ const Home = () => {
   // ====== Load home content and profile image from Supabase ======
   const loadHomeData = async () => {
     try {
-      console.log('🔄 Loading home data from Supabase...');
+      console.log(' Loading home data from Supabase...');
       
-      // ✅ Load home content from Supabase
       const { data: homeData, error: homeError } = await supabase
         .from('home_content')
         .select('*')
         .limit(1);
       
       if (homeError) {
-        console.error('❌ Home content error:', homeError);
+        console.error(' Home content error:', homeError);
       } else if (homeData && homeData.length > 0) {
-        console.log('📦 Home data received:', homeData);
+        console.log(' Home data received:', homeData);
         setHomeContent({
           subtitle: homeData[0].subtitle || 'Full Stack Developer',
           description: homeData[0].description || "I build exceptional digital experiences with React, Node.js, and modern web technologies."
         });
       } else {
-        console.log('⚠️ No home content found, using defaults');
+        console.log(' No home content found, using defaults');
       }
 
-      // ✅ Load profile info (including image) from Supabase
+      // Load profile info (including image) from Supabase
       const { data: profileData, error: profileError } = await supabase
         .from('profile_info')
         .select('profile_image')
         .limit(1);
       
       if (profileError) {
-        console.error('❌ Profile error:', profileError);
+        console.error(' Profile error:', profileError);
       } else if (profileData && profileData.length > 0 && profileData[0].profile_image) {
-        console.log('📦 Profile image loaded from Supabase');
+        console.log(' Profile image loaded from Supabase');
         setProfileImage(profileData[0].profile_image);
       } else {
-        console.log('⚠️ No profile image found, using default');
+        console.log(' No profile image found, using default');
         setProfileImage(defaultHero);
       }
 
     } catch (error) {
-      console.error('❌ Error loading home data:', error);
+      console.error(' Error loading home data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ====== Load data on mount ======
+  //  Load data on mount 
   useEffect(() => {
     loadHomeData();
   }, []);
 
-  // ====== Listen for real-time changes from Supabase ======
+  //  Listen for real-time changes from Supabase 
   useEffect(() => {
     const subscription = supabase
       .channel('home_changes')
@@ -80,7 +78,7 @@ const Home = () => {
           table: 'home_content'
         },
         (payload) => {
-          console.log('🔄 Home content changed in Supabase:', payload);
+          console.log(' Home content changed in Supabase:', payload);
           loadHomeData();
         }
       )
@@ -92,7 +90,7 @@ const Home = () => {
           table: 'profile_info'
         },
         () => {
-          console.log('🔄 Profile info changed, reloading home...');
+          console.log(' Profile info changed, reloading home...');
           loadHomeData();
         }
       )
