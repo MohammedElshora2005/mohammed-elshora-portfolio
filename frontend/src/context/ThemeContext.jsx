@@ -7,16 +7,14 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
-    // ✅ التأكد من إن القيمة JSON صحيح
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch (error) {
-        // لو فيه مشكلة في JSON، استخدم القيمة الافتراضية
         return true;
       }
     }
-    return true; // القيمة الافتراضية (دارك مود)
+    return true;
   });
 
   useEffect(() => {
