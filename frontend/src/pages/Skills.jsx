@@ -10,7 +10,7 @@ const Skills = () => {
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ====== Load skills from Supabase ======
+  //  Load skills from Supabase 
   const loadSkills = async () => {
     try {
       const { data, error } = await supabase
@@ -33,7 +33,6 @@ const Skills = () => {
         ];
         setSkills(defaultSkills);
         
-        // حفظ البيانات الافتراضية في Supabase
         const { error: insertError } = await supabase
           .from('skills')
           .insert(defaultSkills.map(s => ({
@@ -88,7 +87,7 @@ const Skills = () => {
     };
   }, []);
 
-  // ====== Listen for changes from Dashboard (localStorage) ======
+  //  Listen for changes from Dashboard (localStorage) 
   useEffect(() => {
     const handleStorageChange = () => {
       const saved = localStorage.getItem('skills');
