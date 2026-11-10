@@ -9,7 +9,6 @@
   overflow: hidden;
 }
 
-/* خلفية خاصة بالـ Home مختلفة عن باقي الصفحات */
 .home-background {
   position: absolute;
   top: 0;
