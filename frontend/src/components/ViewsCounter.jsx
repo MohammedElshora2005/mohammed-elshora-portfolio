@@ -11,7 +11,6 @@ const ViewsCounter = () => {
   useEffect(() => {
     const updateViews = async () => {
       try {
-        // ✅ جيب العدد الحالي من Supabase
         const { data, error } = await supabase
           .from('site_views')
           .select('count')
@@ -24,10 +23,8 @@ const ViewsCounter = () => {
           currentCount = data[0].count || 0;
         }
         
-        // ✅ زود العدد بـ 1
         const newCount = currentCount + 1;
         
-        // ✅ احفظ العدد الجديد في Supabase
         const { error: updateError } = await supabase
           .from('site_views')
           .upsert({
@@ -41,9 +38,8 @@ const ViewsCounter = () => {
         setViews(newCount);
         
       } catch (error) {
-        console.error('❌ Error updating views:', error);
+        console.error('Error updating views:', error);
         
-        // ✅ Fallback: localStorage لو حصل مشكلة
         let count = localStorage.getItem('siteViews');
         if (count) {
           count = parseInt(count);
