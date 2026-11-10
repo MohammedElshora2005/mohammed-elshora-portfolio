@@ -11,12 +11,10 @@ const transporter = nodemailer.createTransport({
 });
 
 export default async function handler(req, res) {
-  // ✅ إضافة CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // ✅ التعامل مع طلب OPTIONS (preflight)
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -28,7 +26,6 @@ export default async function handler(req, res) {
   try {
     const { name, email, subject, message } = req.body;
     
-    // ✅ التحقق من وجود جميع الحقول
     if (!name || !email || !subject || !message) {
       return res.status(400).json({ error: 'All fields are required' });
     }
@@ -55,23 +52,23 @@ export default async function handler(req, res) {
         <body>
           <div class="container">
             <div class="header">
-              <h2>📧 New Contact Form Submission</h2>
+              <h2>New Contact Form Submission</h2>
             </div>
             <div class="content">
               <div class="field">
-                <div class="label">👤 Name:</div>
+                <div class="label"> Name:</div>
                 <div class="value">${name}</div>
               </div>
               <div class="field">
-                <div class="label">📧 Email:</div>
+                <div class="label"> Email:</div>
                 <div class="value">${email}</div>
               </div>
               <div class="field">
-                <div class="label">📝 Subject:</div>
+                <div class="label"> Subject:</div>
                 <div class="value">${subject}</div>
               </div>
               <div class="field">
-                <div class="label">💬 Message:</div>
+                <div class="label"> Message:</div>
                 <div class="value">${message}</div>
               </div>
             </div>
